@@ -1,0 +1,127 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+
+export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (!menuRef.current) return;
+      if (!menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    function onEsc(e: KeyboardEvent) {
+      if (e.key === 'Escape') setMenuOpen(false);
+    }
+    document.addEventListener('click', onDocClick);
+    document.addEventListener('keydown', onEsc);
+    return () => {
+      document.removeEventListener('click', onDocClick);
+      document.removeEventListener('keydown', onEsc);
+    };
+  }, []);
+
+  // Initialize theme from localStorage or system preference
+  useEffect(() => {
+    const stored = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const enableDark = stored ? stored === 'dark' : prefersDark;
+    setIsDark(enableDark);
+    document.documentElement.classList.toggle('dark', enableDark);
+  }, []);
+
+  function toggleTheme() {
+    const next = !isDark;
+    setIsDark(next);
+    document.documentElement.classList.toggle('dark', next);
+    localStorage.setItem('theme', next ? 'dark' : 'light');
+  }
+
+  async function onLogout() {
+    try {
+      setLoggingOut(true);
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } finally {
+      window.location.href = '/login';
+    }
+  }
+
+  return (
+    <header className="h-14 sticky top-0 z-10 flex items-center justify-between border-b border-[var(--border)] bg-[var(--card)] px-4">
+      <div className="flex items-center gap-2">
+        <button
+          aria-label="Toggle sidebar"
+          onClick={onToggleSidebar}
+          className="rounded p-2 hover:bg-[var(--muted)]"
+        >
+          ☰
+        </button>
+        <span className="text-sm text-[color:var(--muted-foreground)]">Unified Back Office</span>
+      </div>
+      <div className="flex items-center gap-3">
+        <input
+          placeholder="Search"
+          className="hidden md:block rounded border border-[var(--input)] px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+        />
+        <button
+          aria-label="Toggle dark mode"
+          onClick={toggleTheme}
+          className="rounded p-2 hover:bg-[var(--muted)]"
+          title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {isDark ? (
+            // Sun icon
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5 text-[color:var(--muted-foreground)]">
+              <path d="M6.76 4.84l-1.8-1.79L3.17 4.84l1.79 1.79 1.8-1.79zM1 13h3v-2H1v2zm10 10h2v-3h-2v3zm9.83-18.16l-1.79-1.79-1.8 1.79 1.79 1.79 1.8-1.79zM20 11v2h3v-2h-3zm-8-6h2V2h-2v3zm-4 9a6 6 0 1112 0 6 6 0 01-12 0zm10.24 5.16l1.8 1.79 1.79-1.79-1.79-1.79-1.8 1.79zM4.84 17.24l-1.79 1.8 1.79 1.79 1.79-1.79-1.79-1.8z"/>
+            </svg>
+          ) : (
+            // Moon icon
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5 text-[color:var(--muted-foreground)]">
+              <path d="M12 2a9.99 9.99 0 00-8.94 13.49A10 10 0 1012 2zm0 18a8 8 0 01-6.93-12A9.99 9.99 0 0012 20z"/>
+            </svg>
+          )}
+        </button>
+        <div className="relative" ref={menuRef}>
+          <button
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((v) => !v)}
+            className="h-8 w-8 rounded-full bg-[var(--primary)] text-[color:var(--primary-foreground)] grid place-items-center focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+          >
+            U
+          </button>
+          {menuOpen && (
+            <div
+              role="menu"
+              className="absolute right-0 mt-2 w-40 rounded-md border border-[var(--border)] bg-[var(--card)] py-1 shadow-lg"
+            >
+              <button
+                role="menuitem"
+                onClick={onLogout}
+                disabled={loggingOut}
+                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-[color:var(--foreground)] hover:bg-[var(--muted)] disabled:opacity-50"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="h-4 w-4 text-[color:var(--muted-foreground)]"
+                  aria-hidden="true"
+                >
+                  <path d="M16 17l1.41-1.41L14.83 13H21v-2h-6.17l2.58-2.59L16 7l-5 5 5 5z" />
+                  <path d="M3 5h8v2H5v10h6v2H3z" />
+                </svg>
+                <span>Logout</span>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}
