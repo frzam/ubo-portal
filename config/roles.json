@@ -1,0 +1,16 @@
+{
+  "admin": [
+    "dashboard:view",
+    "clients:view",
+    "portfolios:view",
+    "compliance:view",
+    "settings:view"
+  ],
+  "asset_user": [
+    "dashboard:view",
+    "clients:view",
+    "portfolios:view",
+    "settings:view"
+  ]
+}
+

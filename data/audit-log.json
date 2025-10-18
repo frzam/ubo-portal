@@ -1,0 +1,72 @@
+[
+  {
+    "type": "logout",
+    "username": "admin",
+    "timestamp": "2025-10-18T20:32:51.900Z",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+  },
+  {
+    "type": "login",
+    "username": "admin",
+    "timestamp": "2025-10-18T20:33:09.883Z",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+  },
+  {
+    "type": "login",
+    "username": "admin",
+    "timestamp": "2025-10-18T20:33:19.706Z",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+  },
+  {
+    "type": "logout",
+    "username": "admin",
+    "timestamp": "2025-10-18T20:33:37.411Z",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+  },
+  {
+    "type": "login",
+    "username": "asset_user_1",
+    "timestamp": "2025-10-18T20:33:55.739Z",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+  },
+  {
+    "type": "logout",
+    "username": "asset_user_1",
+    "timestamp": "2025-10-18T20:34:01.415Z",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+  },
+  {
+    "type": "login",
+    "username": "admin",
+    "timestamp": "2025-10-18T20:34:14.262Z",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+  },
+  {
+    "type": "logout",
+    "username": "admin",
+    "timestamp": "2025-10-18T20:53:09.014Z",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+  },
+  {
+    "type": "login",
+    "username": "asset_user_1",
+    "timestamp": "2025-10-18T20:53:28.728Z",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+  },
+  {
+    "type": "logout",
+    "username": "asset_user_1",
+    "timestamp": "2025-10-18T20:53:41.150Z",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+  }
+]

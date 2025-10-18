@@ -1,0 +1,18 @@
+{
+  "admin": {
+    "roles": [
+      "admin"
+    ]
+  },
+  "asset_user_1": {
+    "roles": [
+      "asset_user"
+    ],
+    "password": "asset4ubo"
+  },
+  "demo": {
+    "roles": [
+      "admin"
+    ]
+  }
+}
