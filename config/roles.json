@@ -11,6 +11,16 @@
     "clients:view",
     "portfolios:view",
     "settings:view"
+  ],
+  "asset_manager": [
+    "dashboard:view",
+    "clients:view",
+    "portfolios:view",
+    "settings:view"
+  ],
+  "infosec_admin": [
+    "dashboard:view",
+    "compliance:view",
+    "settings:view"
   ]
 }
-

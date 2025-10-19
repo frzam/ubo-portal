@@ -1,0 +1,3 @@
+import { NextResponse } from 'next/server';
+export async function GET() { return NextResponse.json({ count: 2, items: ['Limit breach review', 'KYC exception'] }); }
+

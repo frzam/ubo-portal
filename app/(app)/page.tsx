@@ -1,35 +1,31 @@
-import { PieCard } from '@/components/charts/PieCard';
-import { BarCard } from '@/components/charts/BarCard';
-import { TimelineCard } from '@/components/charts/TimelineCard';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+
+function decodeClaims(value?: string | null): { username: string; roles: string[] } | null {
+  if (!value) return null;
+  try {
+    const json = Buffer.from(value, 'base64url').toString('utf8');
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
+
+function dashboardPathForRoles(roles: string[]): string {
+  const set = new Set(roles);
+  if (set.has('admin')) return '/dashboard/admin';
+  if (set.has('infosec_admin')) return '/dashboard/infosec';
+  if (set.has('asset_manager')) return '/dashboard/asset-manager';
+  if (set.has('asset_user')) return '/dashboard/asset-user';
+  return '/dashboard/admin';
+}
 
 export default function Page() {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold">Dashboard</h1>
-      <p className="mt-2 text-slate-600">
-        Welcome to the Unified Back Office Portal.
-      </p>
-
-      <div className="mt-6 grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="font-medium">AUM</h2>
-          <p className="text-3xl mt-2">$12.4B</p>
-        </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="font-medium">Active Portfolios</h2>
-          <p className="text-3xl mt-2">128</p>
-        </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="font-medium">Open Compliance Tasks</h2>
-          <p className="text-3xl mt-2">23</p>
-        </div>
-      </div>
-
-      <div className="mt-6 grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-        <PieCard />
-        <BarCard />
-        <TimelineCard />
-      </div>
-    </div>
-  );
+  const c = cookies();
+  const claims = decodeClaims(c.get('ubo_claims')?.value);
+  if (!claims) {
+    redirect('/login');
+  }
+  const dest = dashboardPathForRoles(claims.roles || []);
+  redirect(dest);
 }

@@ -40,7 +40,7 @@ export default function OtpPage() {
       });
       const data = await res.json().catch(() => ({ success: false }));
       if (res.ok && data?.success) {
-        router.push('/');
+        router.push('/dashboard');
       } else {
         setError(data?.error || 'Invalid code');
       }

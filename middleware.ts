@@ -39,6 +39,15 @@ export function middleware(req: NextRequest) {
   // Simple RBAC for protected paths
   const protectedRoutes: Record<string, string> = {
     '/compliance': 'compliance:view',
+    '/clients': 'clients:view',
+    '/trades': 'portfolios:view',
+    '/nav': 'portfolios:view',
+    '/reconciliation': 'portfolios:view',
+    '/corporate-actions': 'portfolios:view',
+    '/compliance-risk': 'portfolios:view',
+    '/data-management': 'portfolios:view',
+    '/reports': 'portfolios:view',
+    '/workflow': 'portfolios:view',
   };
   const required = Object.entries(protectedRoutes).find(([p]) => pathname.startsWith(p))?.[1];
   if (required) {
@@ -48,6 +57,25 @@ export function middleware(req: NextRequest) {
       for (const p of (rolesMap as Record<string, string[]>)[role] || []) permissions.add(p);
     }
     if (!permissions.has(required)) {
+      return NextResponse.redirect(new URL('/', req.url));
+    }
+  }
+
+  // Enforce role access for dashboard routes
+  if (pathname.startsWith('/dashboard/')) {
+    const claims = decodeClaims(req.cookies.get('ubo_claims')?.value);
+    const roles = new Set(claims?.roles || []);
+    const seg = pathname.split('/')[2] || '';
+    const roleRequired = seg === 'admin'
+      ? 'admin'
+      : seg === 'infosec'
+      ? 'infosec_admin'
+      : seg === 'asset-manager'
+      ? 'asset_manager'
+      : seg === 'asset-user'
+      ? 'asset_user'
+      : null;
+    if (roleRequired && !roles.has(roleRequired)) {
       return NextResponse.redirect(new URL('/', req.url));
     }
   }

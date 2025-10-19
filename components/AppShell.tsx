@@ -11,7 +11,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const open = pinned || hovering;
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       <Sidebar
         open={open}
         onToggle={() =>
@@ -23,9 +23,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         }
         onHoverChange={(h: boolean) => setHovering(h)}
       />
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 h-screen flex flex-col">
         <Topbar onToggleSidebar={() => setPinned((v) => !v)} />
-        <main className="bg-[var(--background)] min-h-[calc(100vh-56px)]">{children}</main>
+        <main className="bg-[var(--background)] flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
   );

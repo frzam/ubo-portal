@@ -10,6 +10,18 @@
     ],
     "password": "asset4ubo"
   },
+  "asset_manager_1": {
+    "roles": [
+      "asset_manager"
+    ],
+    "password": "manager4ubo"
+  },
+  "infosec_admin_1": {
+    "roles": [
+      "infosec_admin"
+    ],
+    "password": "infosec4ubo"
+  },
   "demo": {
     "roles": [
       "admin"
