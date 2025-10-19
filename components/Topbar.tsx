@@ -4,8 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
-type Fund = { id: string; name: string };
-
 export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
@@ -13,8 +11,6 @@ export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [isDark, setIsDark] = useState(false);
-  const [funds, setFunds] = useState<Fund[]>([]);
-  const [selectedFund, setSelectedFund] = useState<string>('');
   const [bizDate, setBizDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [roles, setRoles] = useState<string[]>([]);
   const [username, setUsername] = useState<string>('');
@@ -52,7 +48,6 @@ export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   }, []);
 
   useEffect(() => {
-    fetch('/api/funds/list').then((r) => r.ok ? r.json() : []).then((j) => setFunds(Array.isArray(j) ? j : []));
     fetch('/api/auth/me').then((r) => r.ok ? r.json() : null).then((j) => { setRoles(j?.roles || []); setUsername(j?.username || ''); });
     Promise.all([
       fetch('/api/alerts/workflow').then((r) => r.ok ? r.json() : { count: 0 }),
@@ -82,6 +77,7 @@ export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
           <Link href="/dashboard" className="inline-flex items-center gap-2" aria-label="Go to dashboard">
             <Image src="/logo-ubo.png" alt="UBO" width={120} height={28} priority className="h-7 w-auto" />
             <span className="hidden md:block text-sm font-medium">Unified Back Office Portal</span>
+            <span className="hidden md:inline ml-2 rounded px-2 py-[2px] text-[10px]" style={{ background: '#FFA500', color: '#1f2937' }}>UAT</span>
           </Link>
         </div>
 
@@ -93,9 +89,19 @@ export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Business Date */}
+          <div className="hidden md:flex items-center gap-2 text-sm text-slate-600">
+            <span>Business Date</span>
+            <input
+              type="date"
+              value={bizDate}
+              onChange={(e) => setBizDate(e.target.value)}
+              className="rounded border border-[var(--input)] px-3 py-1.5 text-sm h-9"
+            />
+          </div>
           {/* Quick actions */}
           <div className="relative" ref={quickRef}>
-            <button onClick={() => setQuickOpen((v) => !v)} className="rounded border px-3 py-1.5 text-sm hover:bg-[var(--muted)]">New ▾</button>
+            <button onClick={() => setQuickOpen((v) => !v)} className="rounded border px-3 py-1.5 text-sm h-9 hover:bg-[var(--muted)]">New ▾</button>
             {quickOpen && (
               <div className="absolute right-0 mt-2 w-40 rounded-md border border-[var(--border)] bg-[var(--card)] py-1 shadow-lg">
                 {(isManager ? ['New Trade', 'New Task', 'Upload File'] : ['New Task', 'Upload File']).map((label) => (
@@ -156,9 +162,7 @@ export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
               <div role="menu" className="absolute right-0 mt-2 w-48 rounded-md border border-[var(--border)] bg-[var(--card)] py-1 shadow-lg text-sm">
                 <div className="px-3 py-2 text-xs text-slate-600">{username}{roles.length ? ` • ${roles.join(', ')}` : ''}</div>
                 <Link href="#" className="block px-3 py-1 hover:bg-[var(--muted)]">My Profile</Link>
-                <Link href="#" className="block px-3 py-1 hover:bg-[var(--muted)]">Change Password</Link>
-                <Link href="#" className="block px-3 py-1 hover:bg-[var(--muted)]">Switch Role</Link>
-                <Link href="#" className="block px-3 py-1 hover:bg-[var(--muted)]">Language: EN/AR</Link>
+                
                 <button role="menuitem" onClick={onLogout} disabled={loggingOut} className="block w-full px-3 py-1 text-left hover:bg-[var(--muted)]">Logout</button>
               </div>
             )}
@@ -166,25 +170,9 @@ export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
         </div>
       </div>
 
-      {/* Second row: context selectors & system info */}
-      <div className="border-t border-[var(--border)] px-4 py-2 text-xs text-[color:var(--foreground)] flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
-          <span className="text-slate-600">Fund/Portfolio</span>
-          <select value={selectedFund} onChange={(e) => setSelectedFund(e.target.value)} className="rounded border border-[var(--input)] px-2 py-1">
-            <option value="">All</option>
-            {funds.map((f) => (
-              <option key={f.id} value={f.id}>{f.name}</option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-slate-600">Business Date</span>
-          <input type="date" value={bizDate} onChange={(e) => setBizDate(e.target.value)} className="rounded border border-[var(--input)] px-2 py-1" />
-        </div>
-        <div className="ml-auto text-slate-600">
-          <span className="rounded px-1.5 py-[1px]" style={{ background: '#FFA500', color: '#1f2937' }}>UAT</span>
-        </div>
-      </div>
+      {/* Second row removed per request */}
     </header>
   );
 }
+
+

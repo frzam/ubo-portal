@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  const types = ['Exposure', 'Investment Limit', 'KYC', 'Best Execution', 'Concentration'];
-  const rows = types.map((breach_type, i) => ({ breach_type, count: 3 + (i % 5) }));
-  return NextResponse.json(rows);
+  return NextResponse.json([
+    { id: 'BR-001', rule_id: 'LIM-1', fund: 'Alpha Fund', details: 'Issuer ABC at 11.2% (>10%)', status: 'Open', detected_at: '2025-10-19T09:10:00' },
+    { id: 'BR-002', rule_id: 'LIM-2', fund: 'Beta Fund', details: 'Country exposure 27% (>25%)', status: 'Under Review', detected_at: '2025-10-18T14:44:00' }
+  ]);
 }
 

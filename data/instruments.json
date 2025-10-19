@@ -1,0 +1,6 @@
+[
+  {"id":"ALJ-GROWTH","symbol":"ALJGX","name":"ALJ Growth Fund","product_type":"MutualFund","currency":"SAR"},
+  {"id":"SUKUK-1","symbol":"SUKUK1","name":"Sukuk Issue 1","product_type":"Sukuk","currency":"SAR","coupon":0.045},
+  {"id":"EQU-101","symbol":"ABC","name":"ABC Corp","product_type":"Equity","currency":"SAR"}
+]
+

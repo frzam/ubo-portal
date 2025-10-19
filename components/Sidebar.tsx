@@ -45,13 +45,6 @@ function Icon({ name }: { name: typeof links[number]['icon'] }) {
           <path d="M3 12h18" />
         </svg>
       );
-    case 'shield-check':
-      return (
-        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-          <path d="M12 2l7 3v6c0 5-3.5 9-7 11-3.5-2-7-6-7-11V5l7-3z" />
-          <path d="M9 12l2 2 4-4" />
-        </svg>
-      );
     case 'gear':
       return (
         <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -196,15 +189,17 @@ export function Sidebar({ open, onToggle, onHoverChange }: { open: boolean; onTo
             const permMap: Record<string, string> = {
               '/dashboard': 'dashboard:view',
               '/clients': 'clients:view',
-              '/trades': 'portfolios:view',
-              '/nav': 'portfolios:view',
-              '/reconciliation': 'portfolios:view',
-              '/corporate-actions': 'portfolios:view',
-              '/compliance-risk': 'portfolios:view',
-              '/data-management': 'portfolios:view',
-              '/portfolios': 'portfolios:view',
-              '/reports': 'portfolios:view',
-              '/workflow': 'portfolios:view',
+              '/workflow': 'workflow:view',
+              '/reconciliation': 'recon:view',
+              // Role-based visibility
+              '/trades': 'manager:view',
+              '/nav': 'manager:view',
+              '/corporate-actions': 'manager:view',
+              // Show Compliance & Risk only to users with explicit compliance permission (hide for Asset Manager)
+              '/compliance-risk': 'compliance:view',
+              '/data-management': 'manager:view',
+              '/portfolios': 'manager:view',
+              '/reports': 'manager:view',
               '/compliance': 'compliance:view',
               '/settings': 'settings:view',
             };

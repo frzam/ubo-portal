@@ -1,0 +1,6 @@
+[
+  {"id":"CEX-1001","fund":"Alpha Fund","bank":"Bank A","date":"2025-10-18","amount":125000,"matched":true},
+  {"id":"CEX-1002","fund":"Alpha Fund","bank":"Bank A","date":"2025-10-18","amount":-5000,"matched":false,"reason":"Missing ledger entry"},
+  {"id":"CEX-1003","fund":"Beta Fund","bank":"Bank B","date":"2025-10-19","amount":32000,"matched":false,"reason":"Value date mismatch"}
+]
+

@@ -40,14 +40,16 @@ export function middleware(req: NextRequest) {
   const protectedRoutes: Record<string, string> = {
     '/compliance': 'compliance:view',
     '/clients': 'clients:view',
-    '/trades': 'portfolios:view',
-    '/nav': 'portfolios:view',
-    '/reconciliation': 'portfolios:view',
-    '/corporate-actions': 'portfolios:view',
-    '/compliance-risk': 'portfolios:view',
-    '/data-management': 'portfolios:view',
-    '/reports': 'portfolios:view',
-    '/workflow': 'portfolios:view',
+    '/workflow': 'workflow:view',
+    '/reconciliation': 'recon:view',
+    // Manager/Admin only
+    '/trades': 'manager:view',
+    '/nav': 'manager:view',
+    '/corporate-actions': 'manager:view',
+    '/compliance-risk': 'manager:view',
+    '/data-management': 'manager:view',
+    '/portfolios': 'manager:view',
+    '/reports': 'manager:view',
   };
   const required = Object.entries(protectedRoutes).find(([p]) => pathname.startsWith(p))?.[1];
   if (required) {

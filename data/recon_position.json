@@ -1,0 +1,5 @@
+[
+  {"id":"PEX-2001","fund":"Alpha Fund","symbol":"ABC","date":"2025-10-18","custodian_qty":1000,"book_qty":1000,"matched":true},
+  {"id":"PEX-2002","fund":"Beta Fund","symbol":"SUKUK1","date":"2025-10-18","custodian_qty":500,"book_qty":450,"matched":false,"reason":"Quantity difference"}
+]
+

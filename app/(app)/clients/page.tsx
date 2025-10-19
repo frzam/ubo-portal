@@ -9,6 +9,7 @@ type Filters = { criterion: Criteria; value: string };
 
 export default function ClientsPage() {
   const [filters, setFilters] = useState<Filters>({ criterion: 'cif', value: '' });
+  const [formError, setFormError] = useState<string>('');
   const [profile, setProfile] = useState<any | null>(null);
   const [kyc, setKyc] = useState<any[]>([]);
   const [assetsDist, setAssetsDist] = useState<any[]>([]);
@@ -34,6 +35,11 @@ export default function ClientsPage() {
   }
 
   async function onSearch() {
+    if (!filters.value.trim()) {
+      setFormError('Please enter a value to search.');
+      return;
+    }
+    setFormError('');
     setLoading(true);
     const j = (r: Response) => (r.ok ? r.json() : null);
     try {
@@ -136,14 +142,22 @@ export default function ClientsPage() {
           <div className="w-full md:w-auto">
             <label className="block text-xs text-slate-600">Value</label>
             <input
-              className="mt-1 w-full md:w-auto max-w-[16rem] rounded border border-[var(--input)] px-2 py-1 text-sm"
+              required
+              aria-invalid={!!formError}
+              className={
+                'mt-1 w-full md:w-auto max-w-[16rem] rounded border px-2 py-1 text-sm ' +
+                (formError ? 'border-red-500' : 'border-[var(--input)]')
+              }
               value={filters.value}
               onChange={(e) => setFilters({ ...filters, value: e.target.value })}
               placeholder="Enter value"
             />
+            {formError ? (
+              <div className="mt-1 text-xs text-red-600">{formError}</div>
+            ) : null}
           </div>
           <div className="flex gap-2">
-            <button onClick={onSearch} disabled={loading} className="rounded bg-[var(--primary)] px-3 py-1.5 text-sm text-[color:var(--primary-foreground)] disabled:opacity-50">Search</button>
+            <button onClick={onSearch} disabled={loading || !filters.value.trim()} className="rounded bg-[var(--primary)] px-3 py-1.5 text-sm text-[color:var(--primary-foreground)] disabled:opacity-50">Search</button>
             <button onClick={onClear} className="rounded border px-3 py-1.5 text-sm">Clear</button>
           </div>
         </div>

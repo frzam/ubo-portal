@@ -2,20 +2,25 @@
   "admin": [
     "dashboard:view",
     "clients:view",
-    "portfolios:view",
+    "workflow:view",
+    "recon:view",
+    "manager:view",
     "compliance:view",
     "settings:view"
   ],
   "asset_user": [
     "dashboard:view",
     "clients:view",
-    "portfolios:view",
+    "workflow:view",
+    "recon:view",
     "settings:view"
   ],
   "asset_manager": [
     "dashboard:view",
     "clients:view",
-    "portfolios:view",
+    "workflow:view",
+    "recon:view",
+    "manager:view",
     "settings:view"
   ],
   "infosec_admin": [

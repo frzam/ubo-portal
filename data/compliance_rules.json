@@ -1,0 +1,5 @@
+[
+  {"id":"LIM-1","name":"Issuer Limit","type":"Limit","params":{"issuer_pct":10}},
+  {"id":"LIM-2","name":"Country Limit","type":"Limit","params":{"country_pct":25}}
+]
+
