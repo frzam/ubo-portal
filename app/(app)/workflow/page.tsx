@@ -325,7 +325,13 @@ export default function WorkflowPage() {
                 ],
               } as any;
               // @ts-ignore
-              return <ReactECharts option={option} style={{ height: '100%', width: '100%' }} />;
+              return (
+                <ReactECharts
+                  option={option}
+                  onChartReady={(inst: any) => inst?.resize?.()}
+                  style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }}
+                />
+              );
             })()}
           </div>
         </div>
@@ -334,7 +340,11 @@ export default function WorkflowPage() {
           <div className="mt-2 h-[220px]">
             {byProcessOption ? (
               // @ts-ignore
-              <ReactECharts option={byProcessOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts
+                option={byProcessOption}
+                onChartReady={(inst: any) => inst?.resize?.()}
+                style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }}
+              />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -345,7 +355,11 @@ export default function WorkflowPage() {
           <div className="mt-2 h-[220px]">
             {byAssigneeOption ? (
               // @ts-ignore
-              <ReactECharts option={byAssigneeOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts
+                option={byAssigneeOption}
+                onChartReady={(inst: any) => inst?.resize?.()}
+                style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }}
+              />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}

@@ -245,7 +245,7 @@ export default function AssetUserDashboardPage() {
           <div className="mt-2 h-[200px]">
             {tradeOption ? (
               // @ts-ignore
-              <ReactECharts option={tradeOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={tradeOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -256,7 +256,7 @@ export default function AssetUserDashboardPage() {
           <div className="mt-2 h-[200px]">
             {settlementOption ? (
               // @ts-ignore
-              <ReactECharts option={settlementOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={settlementOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -267,7 +267,7 @@ export default function AssetUserDashboardPage() {
           <div className="mt-2 h-[200px]">
             {navOption ? (
               // @ts-ignore
-              <ReactECharts option={navOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={navOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -282,7 +282,7 @@ export default function AssetUserDashboardPage() {
           <div className="mt-2 h-[220px]">
             {reconOption ? (
               // @ts-ignore
-              <ReactECharts option={reconOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={reconOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -293,7 +293,7 @@ export default function AssetUserDashboardPage() {
           <div className="mt-2 h-[220px]">
             {radarOption ? (
               // @ts-ignore
-              <ReactECharts option={radarOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={radarOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}

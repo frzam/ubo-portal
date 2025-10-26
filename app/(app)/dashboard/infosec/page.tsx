@@ -224,7 +224,7 @@ export default function InfoSecDashboardPage() {
           <div className="mt-2 h-[200px]">
             {accessOption ? (
               // @ts-ignore
-              <ReactECharts option={accessOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={accessOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -235,7 +235,7 @@ export default function InfoSecDashboardPage() {
           <div className="mt-2 h-[200px]">
             {loginOption ? (
               // @ts-ignore
-              <ReactECharts option={loginOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={loginOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -246,7 +246,7 @@ export default function InfoSecDashboardPage() {
           <div className="mt-2 h-[200px]">
             {privOption ? (
               // @ts-ignore
-              <ReactECharts option={privOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={privOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -261,7 +261,7 @@ export default function InfoSecDashboardPage() {
           <div className="mt-2 h-[200px]">
             {vulnOption ? (
               // @ts-ignore
-              <ReactECharts option={vulnOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={vulnOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -272,7 +272,7 @@ export default function InfoSecDashboardPage() {
           <div className="mt-2 h-[200px]">
             {patchOption ? (
               // @ts-ignore
-              <ReactECharts option={patchOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={patchOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -283,7 +283,7 @@ export default function InfoSecDashboardPage() {
           <div className="mt-2 h-[200px]">
             {dataProtOption ? (
               // @ts-ignore
-              <ReactECharts option={dataProtOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={dataProtOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -310,7 +310,7 @@ export default function InfoSecDashboardPage() {
           <div className="mt-2 h-[220px]">
             {autoSecOption ? (
               // @ts-ignore
-              <ReactECharts option={autoSecOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={autoSecOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}

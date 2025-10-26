@@ -282,21 +282,33 @@ export default function ReconciliationPage() {
             <div className="text-sm font-medium">Daily Reconciliation Trend</div>
             <div className="mt-2 h-[200px]">
               {/* @ts-ignore */}
-              <ReactECharts option={trendOption} style={{ height: "100%", width: "100%" }} />
+              <ReactECharts
+                option={trendOption}
+                onChartReady={(inst: any) => inst?.resize?.()}
+                style={{ height: "100%", width: "100%", minHeight: 1, minWidth: 1 }}
+              />
             </div>
           </div>
           <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-3">
             <div className="text-sm font-medium">Top Funds by Mismatch Count</div>
             <div className="mt-2 h-[200px]">
               {/* @ts-ignore */}
-              <ReactECharts option={topBarOption} style={{ height: "100%", width: "100%" }} />
+              <ReactECharts
+                option={topBarOption}
+                onChartReady={(inst: any) => inst?.resize?.()}
+                style={{ height: "100%", width: "100%", minHeight: 1, minWidth: 1 }}
+              />
             </div>
           </div>
           <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-3">
             <div className="text-sm font-medium">Mismatch Type Distribution</div>
             <div className="mt-2 h-[200px]">
               {/* @ts-ignore */}
-              <ReactECharts option={typePieOption} style={{ height: "100%", width: "100%" }} />
+              <ReactECharts
+                option={typePieOption}
+                onChartReady={(inst: any) => inst?.resize?.()}
+                style={{ height: "100%", width: "100%", minHeight: 1, minWidth: 1 }}
+              />
             </div>
           </div>
         </div>

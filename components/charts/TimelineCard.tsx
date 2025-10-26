@@ -88,7 +88,11 @@ export function TimelineCard() {
       <h2 className="text-sm font-medium text-[color:var(--foreground)]">AUM Over Time</h2>
       <div className="mt-2 h-[280px]">
         {/* @ts-ignore */}
-        <ReactECharts option={option} style={{ height: '100%', width: '100%' }} />
+        <ReactECharts
+          option={option}
+          onChartReady={(inst: any) => inst?.resize?.()}
+          style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }}
+        />
       </div>
     </div>
   );

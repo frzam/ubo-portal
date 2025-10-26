@@ -293,7 +293,11 @@ export default function ClientsPage() {
           <div className="mt-2 h-[260px]">
             {investmentTimelineOption ? (
               // @ts-ignore
-              <ReactECharts option={investmentTimelineOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts
+                option={investmentTimelineOption}
+                onChartReady={(inst: any) => inst?.resize?.()}
+                style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }}
+              />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -304,7 +308,11 @@ export default function ClientsPage() {
           <div className="mt-2 h-[260px]">
             {allocationByAssetOption ? (
               // @ts-ignore
-              <ReactECharts option={allocationByAssetOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts
+                option={allocationByAssetOption}
+                onChartReady={(inst: any) => inst?.resize?.()}
+                style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }}
+              />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}

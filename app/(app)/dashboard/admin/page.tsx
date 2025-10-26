@@ -316,7 +316,7 @@ export default function AdminDashboardPage() {
           <div className="mt-2 h-[200px]">
             {lifecycleOption ? (
               // @ts-ignore
-              <ReactECharts option={lifecycleOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={lifecycleOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -327,7 +327,7 @@ export default function AdminDashboardPage() {
           <div className="mt-2 h-[200px]">
             {settlementOption ? (
               // @ts-ignore
-              <ReactECharts option={settlementOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={settlementOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -338,7 +338,7 @@ export default function AdminDashboardPage() {
           <div className="mt-2 h-[200px]">
             {navStatusOption ? (
               // @ts-ignore
-              <ReactECharts option={navStatusOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={navStatusOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -353,7 +353,7 @@ export default function AdminDashboardPage() {
           <div className="mt-2 h-[200px]">
             {navTrendOption ? (
               // @ts-ignore
-              <ReactECharts option={navTrendOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={navTrendOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -364,7 +364,7 @@ export default function AdminDashboardPage() {
           <div className="mt-2 h-[200px]">
             {positionsOption ? (
               // @ts-ignore
-              <ReactECharts option={positionsOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={positionsOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -375,7 +375,7 @@ export default function AdminDashboardPage() {
           <div className="mt-2 h-[200px]">
             {breachesOption ? (
               // @ts-ignore
-              <ReactECharts option={breachesOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={breachesOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -390,7 +390,7 @@ export default function AdminDashboardPage() {
           <div className="mt-2 h-[220px]">
             {automationOption ? (
               // @ts-ignore
-              <ReactECharts option={automationOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={automationOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -401,7 +401,7 @@ export default function AdminDashboardPage() {
           <div className="mt-2 h-[220px]">
             {radarOption ? (
               // @ts-ignore
-              <ReactECharts option={radarOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={radarOption} onChartReady={(inst: any) => inst?.resize?.()} style={{ height: '100%', width: '100%', minHeight: 1, minWidth: 1 }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
