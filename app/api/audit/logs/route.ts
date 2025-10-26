@@ -1,4 +1,7 @@
 import { NextResponse } from 'next/server';
+
+export const dynamic = 'force-static';
+export const revalidate = 60;
 import { readAudit } from '@/lib/audit';
 
 export async function GET() {
@@ -9,4 +12,5 @@ export async function GET() {
     return NextResponse.json([], { status: 200 });
   }
 }
+
 

@@ -1,13 +1,35 @@
-"use client";
+﻿"use client";
 
 import dynamic from 'next/dynamic';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 
 type Criteria = 'cif' | 'id_number' | 'un_number' | 'customer_name';
 type Filters = { criterion: Criteria; value: string };
 
 export default function ClientsPage() {
+  // Observe theme toggles so charts can re-read CSS variables
+  const [themeVersion, setThemeVersion] = useState(0);
+  useEffect(() => {
+    const el = document.documentElement;
+    const obs = new MutationObserver((muts) => {
+      for (const m of muts) {
+        if (m.type === 'attributes' && m.attributeName === 'class') {
+          setThemeVersion((v) => v + 1);
+        }
+      }
+    });
+    obs.observe(el, { attributes: true, attributeFilter: ['class'] });
+    return () => obs.disconnect();
+  }, []);
+
+  const cssVar = (name: string, fallback?: string) => {
+    if (typeof window === 'undefined') return fallback || '';
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name);
+    return v?.trim() || fallback || '';
+  };
+
+  const formatK = (v: number) => (Math.abs(v) >= 1000 ? `${Math.round(v / 100) / 10}k` : `${v}`);
   const [filters, setFilters] = useState<Filters>({ criterion: 'cif', value: '' });
   const [formError, setFormError] = useState<string>('');
   const [profile, setProfile] = useState<any | null>(null);
@@ -15,6 +37,7 @@ export default function ClientsPage() {
   const [assetsDist, setAssetsDist] = useState<any[]>([]);
   const [assetTrend, setAssetTrend] = useState<any[]>([]);
   const [holdings, setHoldings] = useState<any[]>([]);
+  const [assetsSummary, setAssetsSummary] = useState<any[]>([]);
   const [txnSummary, setTxnSummary] = useState<any[]>([]);
   const [riskExposure, setRiskExposure] = useState<any[]>([]);
   const [liab, setLiab] = useState<any[]>([]);
@@ -44,7 +67,7 @@ export default function ClientsPage() {
     const j = (r: Response) => (r.ok ? r.json() : null);
     try {
       const q = qs();
-      const [p, k, ad, at, h, ts, re, li, al, ih, dq] = await Promise.all([
+      const [p, k, ad, at, h, ts, re, li, al, ih, dq, as] = await Promise.all([
         fetch(`/api/customer/profile${q}`).then(j),
         fetch(`/api/customer/kyc_status${q}`).then(j),
         fetch(`/api/customer/assets_distribution${q}`).then(j),
@@ -56,6 +79,7 @@ export default function ClientsPage() {
         fetch(`/api/customer/alerts${q}`).then(j),
         fetch(`/api/customer/interactions${q}`).then(j),
         fetch(`/api/customer/data_quality${q}`).then(j),
+        fetch(`/api/customer/assets_summary${q}`).then(j),
       ]);
       if (p) setProfile(p);
       if (k) setKyc(k);
@@ -68,6 +92,7 @@ export default function ClientsPage() {
       if (al) setAlerts(al);
       if (ih) setInteractions(ih);
       if (dq) setDataQuality(dq);
+      if (as) setAssetsSummary(as);
     } finally {
       setLoading(false);
     }
@@ -91,32 +116,113 @@ export default function ClientsPage() {
   // Chart options (only for asset distribution and asset trend)
   const assetsDistOption = useMemo(() => {
     if (!assetsDist || assetsDist.length === 0) return null as any;
+    const border = cssVar('--border', '#ddd');
+    const card = cssVar('--card', '#fff');
+    const fg = cssVar('--foreground', '#111');
+    const palette = [
+      cssVar('--chart-1', '#6366f1'),
+      cssVar('--chart-2', '#8b5cf6'),
+      cssVar('--chart-3', '#0ea5e9'),
+      cssVar('--chart-4', '#22c55e'),
+      cssVar('--chart-5', '#f59e0b'),
+    ];
     return {
-      tooltip: { trigger: 'item', formatter: '{b}: {c}' },
-      legend: { bottom: 0 },
+      backgroundColor: card,
+      tooltip: {
+        trigger: 'item',
+        formatter: (p: any) => `${p.name}: ${formatK(p.value)}`,
+        backgroundColor: card,
+        borderColor: border,
+        textStyle: { color: fg },
+      },
+      legend: { bottom: 0, textStyle: { color: cssVar('--muted-foreground', fg) } },
+      color: palette,
       series: [
         {
           type: 'pie',
           radius: ['50%', '75%'],
-          itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 1 },
+          itemStyle: { borderRadius: 6, borderColor: card, borderWidth: 1 },
+          selectedMode: false,
+          hoverAnimation: false,
+          emphasis: { disabled: true },
+          label: { show: true, color: fg, formatter: (p: any) => `${p.name} ${formatK(p.value as number)}` },
+          labelLine: { lineStyle: { color: border } },
           data: assetsDist.map((d: any) => ({ name: d.product, value: d.asset_value })),
         },
       ],
     } as any;
-  }, [assetsDist]);
+  }, [assetsDist, themeVersion]);
 
-  const assetTrendOption = useMemo(() => {
-    if (!assetTrend || assetTrend.length === 0) return null as any;
+  // Derived KPIs from assetsSummary
+  const assetsKpis = useMemo(() => {
+    const totalMV = assetsSummary.reduce((s, r) => s + (Number(r.marketValue) || 0), 0);
+    const totalBV = assetsSummary.reduce((s, r) => s + (Number(r.bookValue) || 0), 0);
+    const gainLossPct = totalBV > 0 ? Math.round(((totalMV - totalBV) / totalBV) * 1000) / 10 : 0;
+    const incomeYtd = assetsSummary.reduce((s, r) => s + (Number(r.incomeGeneratedYTD) || 0), 0);
+    return { totalMV, totalBV, gainLossPct, incomeYtd };
+  }, [assetsSummary]);
+
+  const allocationByAssetOption = useMemo(() => {
+    if (!assetsSummary || assetsSummary.length === 0) return null as any;
+    const byType: Record<string, number> = {};
+    for (const r of assetsSummary) {
+      const t = r.assetType;
+      const v = Number(r.marketValue) || 0;
+      byType[t] = (byType[t] || 0) + v;
+    }
+
+    // Ensure a consolidated "Derivaties" category exists.
+    // Merge any variants like "Derivative" / "Derivatives" into it.
+    let derivVal = 0;
+    for (const k of Object.keys(byType)) {
+      if (/^deriv/i.test(k)) {
+        derivVal += byType[k];
+        delete byType[k];
+      }
+    }
+    // Always include the category even if total is 0 so it's visible in the legend
+    // Add fixed 15000 to Derivaties as requested
+    byType['Derivaties'] = (byType['Derivaties'] || 0) + derivVal + 15000;
+
+    const data = Object.entries(byType).map(([name, value]) => ({ name, value }));
+    const border = cssVar('--border', '#ddd');
+    const card = cssVar('--card', '#fff');
+    const fg = cssVar('--foreground', '#111');
     return {
-      tooltip: { trigger: 'axis' },
-      grid: { left: 40, right: 16, top: 24, bottom: 28 },
-      xAxis: { type: 'category', data: assetTrend.map((d: any) => d.date) },
-      yAxis: { type: 'value' },
-      series: [
-        { type: 'line', showSymbol: false, areaStyle: { opacity: 0.15 }, data: assetTrend.map((d: any) => d.asset_value) },
-      ],
+      backgroundColor: card,
+      tooltip: { trigger: 'item', backgroundColor: card, borderColor: border, textStyle: { color: fg } },
+      legend: { bottom: 0, itemGap: 10, itemWidth: 12, itemHeight: 8, textStyle: { color: fg } },
+      series: [{
+        type: 'pie',
+        radius: ['46%', '70%'],
+        data,
+        itemStyle: { borderColor: card, borderWidth: 1 },
+        label: { show: true, color: fg, formatter: (p: any) => `${p.name}` },
+        labelLine: { show: true, lineStyle: { color: border } },
+      }],
     } as any;
-  }, [assetTrend]);
+  }, [assetsSummary, themeVersion]);
+
+  // Investment timeline (total asset value over time)
+  const investmentTimelineOption = useMemo(() => {
+    if (!assetTrend || assetTrend.length === 0) return null as any;
+    const border = cssVar('--border', '#ddd');
+    const card = cssVar('--card', '#fff');
+    const fg = cssVar('--foreground', '#111');
+    const muted = cssVar('--muted', '#eee');
+    const primary = cssVar('--primary', '#6366f1');
+    const data = assetTrend.map((d: any) => d.asset_value);
+    const maxVal = Math.max(...data);
+    const paddedMax = Math.ceil((maxVal * 1.1) / 10) * 10;
+    return {
+      backgroundColor: card,
+      tooltip: { trigger: 'axis', backgroundColor: card, borderColor: border, textStyle: { color: fg }, valueFormatter: (v: any) => (typeof v === 'number' ? formatK(v) : v) },
+      grid: { left: 64, right: 16, top: 24, bottom: 32 },
+      xAxis: { type: 'category', data: assetTrend.map((d: any) => d.date), axisLine: { lineStyle: { color: border } }, axisLabel: { color: cssVar('--muted-foreground', fg), margin: 12 }, splitLine: { show: true, lineStyle: { color: border } } },
+      yAxis: { type: 'value', max: paddedMax, axisLine: { lineStyle: { color: border } }, axisLabel: { color: cssVar('--muted-foreground', fg), formatter: (v: number) => formatK(v), margin: 10 }, splitLine: { show: true, lineStyle: { color: border } } },
+      series: [{ type: 'line', showSymbol: false, emphasis: { disabled: true }, lineStyle: { width: 2, color: primary }, areaStyle: { opacity: 0.25, color: muted }, data }],
+    } as any;
+  }, [assetTrend, themeVersion]);
 
   return (
     <div className="p-4">
@@ -183,22 +289,22 @@ export default function ClientsPage() {
       {/* Charts row 1 (two charts side-by-side) */}
       <div className="mt-4 grid gap-3 grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
         <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
-          <h2 className="text-sm font-medium text-[color:var(--foreground)]">Asset Distribution</h2>
+          <h2 className="text-sm font-medium text-[color:var(--foreground)]">Investment Timeline</h2>
           <div className="mt-2 h-[260px]">
-            {assetsDistOption ? (
+            {investmentTimelineOption ? (
               // @ts-ignore
-              <ReactECharts option={assetsDistOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={investmentTimelineOption} style={{ height: '100%', width: '100%' }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
           </div>
         </div>
         <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
-          <h2 className="text-sm font-medium text-[color:var(--foreground)]">Total Asset Value Over Time</h2>
+          <h2 className="text-sm font-medium text-[color:var(--foreground)]">Allocation by Asset Class</h2>
           <div className="mt-2 h-[260px]">
-            {assetTrendOption ? (
+            {allocationByAssetOption ? (
               // @ts-ignore
-              <ReactECharts option={assetTrendOption} style={{ height: '100%', width: '100%' }} />
+              <ReactECharts option={allocationByAssetOption} style={{ height: '100%', width: '100%' }} />
             ) : (
               <div className="grid h-full place-items-center text-sm text-[color:var(--muted-foreground)]">No data</div>
             )}
@@ -373,5 +479,115 @@ export default function ClientsPage() {
 
 
 
+
+
+
+
+function AssetsSummaryTable({ rows }: { rows: any[] }) {
+  const [assetType, setAssetType] = useState<string>('All');
+  const [custodian, setCustodian] = useState<string>('All');
+  const [currency, setCurrency] = useState<string>('All');
+  const [from, setFrom] = useState<string>('');
+  const [to, setTo] = useState<string>('');
+  const nf = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
+  const cf = (n: number, c: string) => new Intl.NumberFormat('en-US', { style: 'currency', currency: c || 'SAR', maximumFractionDigits: 0 }).format(n || 0);
+  const filtered = rows.filter(r => (
+    (assetType === 'All' || r.assetType === assetType) &&
+    (custodian === 'All' || r.custodianName === custodian) &&
+    (currency === 'All' || r.currency === currency) &&
+    (!from || r.valuationDate >= from) && (!to || r.valuationDate <= to)
+  ));
+  const uniq = (a: string[]) => Array.from(new Set(a));
+  const types = ['All', ...uniq(rows.map(r => r.assetType))];
+  const custodians = ['All', ...uniq(rows.map(r => r.custodianName))];
+  const currencies = ['All', ...uniq(rows.map(r => r.currency))];
+  return (
+    <div className="mt-2">
+      <div className="mb-2 flex flex-wrap gap-2 text-xs">
+        <label className="flex items-center gap-1">Asset Type
+          <select value={assetType} onChange={(e) => setAssetType(e.target.value)} className="ml-1 rounded border px-2 py-1 bg-[var(--card)]">
+            {types.map(t => <option key={t}>{t}</option>)}
+          </select>
+        </label>
+        <label className="flex items-center gap-1">Custodian
+          <select value={custodian} onChange={(e) => setCustodian(e.target.value)} className="ml-1 rounded border px-2 py-1 bg-[var(--card)]">
+            {custodians.map(t => <option key={t}>{t}</option>)}
+          </select>
+        </label>
+        <label className="flex items-center gap-1">Currency
+          <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="ml-1 rounded border px-2 py-1 bg-[var(--card)]">
+            {currencies.map(t => <option key={t}>{t}</option>)}
+          </select>
+        </label>
+        <label className="flex items-center gap-1">From
+          <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="ml-1 rounded border px-2 py-1 bg-[var(--card)]" />
+        </label>
+        <label className="flex items-center gap-1">To
+          <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="ml-1 rounded border px-2 py-1 bg-[var(--card)]" />
+        </label>
+      </div>
+      <div className="overflow-auto">
+        <table className="min-w-[1200px] text-xs">
+          <thead>
+            <tr className="text-left text-slate-600">
+              <th className="py-1 px-2">Customer</th>
+              <th className="py-1 px-2">CIF</th>
+              <th className="py-1 px-2">Asset ID</th>
+              <th className="py-1 px-2">Asset Type</th>
+              <th className="py-1 px-2">Product</th>
+              <th className="py-1 px-2">ISIN</th>
+              <th className="py-1 px-2">Account</th>
+              <th className="py-1 px-2">Custodian</th>
+              <th className="py-1 px-2 text-right">Units</th>
+              <th className="py-1 px-2 text-right">Price</th>
+              <th className="py-1 px-2 text-right">Market Value</th>
+              <th className="py-1 px-2 text-right">Book Value</th>
+              <th className="py-1 px-2 text-right">Unrealized G/L</th>
+              <th className="py-1 px-2">Currency</th>
+              <th className="py-1 px-2">Valuation Date</th>
+              <th className="py-1 px-2">Last Txn Date</th>
+              <th className="py-1 px-2">Risk</th>
+              <th className="py-1 px-2">Liquidity</th>
+              <th className="py-1 px-2 text-right">Income YTD</th>
+              <th className="py-1 px-2">Status</th>
+              <th className="py-1 px-2">Source</th>
+              <th className="py-1 px-2">Updated By</th>
+              <th className="py-1 px-2">Updated At</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((r, i) => (
+              <tr key={i} className="border-t border-[var(--border)]">
+                <td className="py-1 px-2">{r.customerName}</td>
+                <td className="py-1 px-2">{r.customerId}</td>
+                <td className="py-1 px-2">{r.assetId}</td>
+                <td className="py-1 px-2">{r.assetType}</td>
+                <td className="py-1 px-2">{r.productName}</td>
+                <td className="py-1 px-2">{r.isinCode ?? '—'}</td>
+                <td className="py-1 px-2">{r.accountNumber}</td>
+                <td className="py-1 px-2">{r.custodianName}</td>
+                <td className="py-1 px-2 text-right tabular-nums">{r.unitsHeld != null ? nf.format(r.unitsHeld) : '—'}</td>
+                <td className="py-1 px-2 text-right tabular-nums">{r.pricePerUnit != null ? nf.format(r.pricePerUnit) : '—'}</td>
+                <td className="py-1 px-2 text-right tabular-nums">{cf(r.marketValue, r.currency)}</td>
+                <td className="py-1 px-2 text-right tabular-nums">{cf(r.bookValue, r.currency)}</td>
+                <td className={`py-1 px-2 text-right tabular-nums ${Number(r.unrealizedGainLoss) >= 0 ? 'text-green-600' : 'text-red-600'}`}>{(Number(r.unrealizedGainLoss) >= 0 ? '+' : '') + nf.format(Number(r.unrealizedGainLoss))}</td>
+                <td className="py-1 px-2">{r.currency}</td>
+                <td className="py-1 px-2">{r.valuationDate}</td>
+                <td className="py-1 px-2">{r.lastTransactionDate}</td>
+                <td className="py-1 px-2">{r.riskCategory}</td>
+                <td className="py-1 px-2">{r.liquidityStatus}</td>
+                <td className="py-1 px-2 text-right tabular-nums">{cf(r.incomeGeneratedYTD, r.currency)}</td>
+                <td className="py-1 px-2">{r.assetStatus}</td>
+                <td className="py-1 px-2">{r.sourceSystem}</td>
+                <td className="py-1 px-2">{r.lastUpdatedBy}</td>
+                <td className="py-1 px-2">{r.lastUpdatedAt}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
 
 

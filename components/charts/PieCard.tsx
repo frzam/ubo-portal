@@ -23,12 +23,21 @@ export function PieCard() {
                 <Cell key={i} fill={palette[i % palette.length]} />
               ))}
             </Pie>
-            <Tooltip />
-            <Legend verticalAlign="bottom" height={24} />
+            <Tooltip contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }} labelStyle={{ color: 'var(--muted-foreground)' }} itemStyle={{ color: 'var(--foreground)' }} />
+            <Legend
+              verticalAlign="bottom"
+              height={20}
+              iconSize={10}
+              wrapperStyle={{ color: 'var(--muted-foreground)', fontSize: 12, marginTop: 6 }}
+              formatter={(value: any) => (
+                // Render as HTML so text color is respected in dark mode
+                // eslint-disable-next-line react/jsx-key
+                (value && String(value))
+              )}
+            />
           </PieChart>
         </ResponsiveContainer>
       </div>
     </div>
   );
 }
-

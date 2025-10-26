@@ -14,6 +14,9 @@ export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   const [bizDate, setBizDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [roles, setRoles] = useState<string[]>([]);
   const [username, setUsername] = useState<string>('');
+  const [fullName, setFullName] = useState<string>('');
+  const [employeeId, setEmployeeId] = useState<string>('');
+  const [lastLoginAt, setLastLoginAt] = useState<string>('');
   const [alerts, setAlerts] = useState<{ workflow: number; compliance: number; system: number }>({ workflow: 0, compliance: 0, system: 0 });
 
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -48,7 +51,15 @@ export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   }, []);
 
   useEffect(() => {
-    fetch('/api/auth/me').then((r) => r.ok ? r.json() : null).then((j) => { setRoles(j?.roles || []); setUsername(j?.username || ''); });
+    fetch('/api/auth/me')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        setRoles(j?.roles || []);
+        setUsername(j?.username || '');
+        setFullName(j?.fullName || '');
+        setEmployeeId(j?.employeeId || '');
+        setLastLoginAt(j?.lastLoginAt || '');
+      });
     Promise.all([
       fetch('/api/alerts/workflow').then((r) => r.ok ? r.json() : { count: 0 }),
       fetch('/api/alerts/compliance').then((r) => r.ok ? r.json() : { count: 0 }),
@@ -145,7 +156,7 @@ export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
               <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 2-3 4" /><line x1="12" y1="17" x2="12" y2="17" /></svg>
             </button>
             {helpOpen && (
-              <div className="absolute right-0 mt-2 w-48 rounded-md border border-[var(--border)] bg-[var(--card)] py-1 shadow-lg text-sm">
+              <div className="absolute right-0 mt-2 w-60 rounded-md border border-[var(--border)] bg-[var(--card)] py-1 shadow-lg text-sm">
                 <Link href="/help/manual" className="block px-3 py-1 hover:bg-[var(--muted)]">User Manual</Link>
                 <Link href="/support/new" className="block px-3 py-1 hover:bg-[var(--muted)]">Raise Ticket</Link>
                 <Link href="/system/status" className="block px-3 py-1 hover:bg-[var(--muted)]">System Status</Link>
@@ -159,11 +170,24 @@ export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-3.866 0-7 2.239-7 5v1h14v-1c0-2.761-3.134-5-7-5z" /></svg>
             </button>
             {menuOpen && (
-              <div role="menu" className="absolute right-0 mt-2 w-48 rounded-md border border-[var(--border)] bg-[var(--card)] py-1 shadow-lg text-sm">
-                <div className="px-3 py-2 text-xs text-slate-600">{username}{roles.length ? ` • ${roles.join(', ')}` : ''}</div>
-                <Link href="#" className="block px-3 py-1 hover:bg-[var(--muted)]">My Profile</Link>
+              <div role="menu" className="absolute right-0 mt-2 w-44 rounded-md border border-[var(--border)] bg-[var(--card)] py-1 shadow-lg text-sm">
                 
-                <button role="menuitem" onClick={onLogout} disabled={loggingOut} className="block w-full px-3 py-1 text-left hover:bg-[var(--muted)]">Logout</button>
+                <div className="px-3 pt-2 pb-2 text-[11px] text-[color:var(--muted-foreground)] text-left">
+                  <div><span className="font-medium text-[color:var(--foreground)]">{fullName || username}</span></div>
+                </div>
+                <div className="hidden">{roles.length ? roles.join(', ') : ''}</div>
+                <Link href="#" className="flex items-center gap-2 px-3 py-1 hover:bg-[var(--muted)]">
+                  <span className="inline-flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    My Profile
+                  </span>
+                </Link>
+                <button role="menuitem" onClick={onLogout} disabled={loggingOut} className="flex w-full items-center gap-2 px-3 py-1 text-left hover:bg-[var(--muted)]">
+                  <span className="inline-flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Logout
+                  </span>
+                </button>
               </div>
             )}
           </div>
@@ -174,5 +198,7 @@ export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
     </header>
   );
 }
+
+
 
 

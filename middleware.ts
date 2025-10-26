@@ -86,5 +86,6 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  // Skip middleware for API routes to avoid extra overhead on static endpoints
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|api).*)'],
 };

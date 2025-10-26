@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-static';
+export const revalidate = 60;
+
 export async function GET() {
   return NextResponse.json({
     active_users: 32,
@@ -9,4 +12,3 @@ export async function GET() {
     compliance_score: 89,
   });
 }
-

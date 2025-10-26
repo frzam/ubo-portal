@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-static';
+export const revalidate = 60;
+
 export async function GET() {
   return NextResponse.json([
     { role: 'Admin', user_count: 3 },
@@ -9,4 +12,5 @@ export async function GET() {
     { role: 'InfoSec', user_count: 2 },
   ]);
 }
+
 

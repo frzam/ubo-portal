@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-static';
+export const revalidate = 60;
+
 export async function GET() {
   return NextResponse.json([
     { framework: 'ISO 27001', compliance_percentage: 92 },
@@ -8,4 +11,5 @@ export async function GET() {
     { framework: 'PDPL', compliance_percentage: 81 },
   ]);
 }
+
 

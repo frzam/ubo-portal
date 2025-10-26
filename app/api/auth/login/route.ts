@@ -47,6 +47,15 @@ export async function POST(req: NextRequest) {
             secure: process.env.NODE_ENV === 'production',
             maxAge: 60 * 60 * 8,
           });
+          response.cookies.set({
+            name: 'ubo_last_login',
+            value: new Date().toISOString(),
+            httpOnly: true,
+            sameSite: 'lax',
+            path: '/',
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24 * 365,
+          });
           return response;
         }
         return NextResponse.json(
@@ -85,6 +94,15 @@ export async function POST(req: NextRequest) {
       path: '/',
       secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 8,
+    });
+    response.cookies.set({
+      name: 'ubo_last_login',
+      value: new Date().toISOString(),
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 60 * 24 * 365,
     });
     return response;
   } catch (err) {

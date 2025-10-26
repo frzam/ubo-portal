@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-static';
+export const revalidate = 60;
+
 export async function GET() {
   return NextResponse.json([
     { category: 'Databases', score: 92 },
@@ -8,4 +11,5 @@ export async function GET() {
     { category: 'Backups', score: 86 },
   ]);
 }
+
 

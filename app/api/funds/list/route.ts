@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-static';
+export const revalidate = 60;
+
 export async function GET() {
   return NextResponse.json([
     { id: 'ALJ-GROWTH', name: 'ALJ Growth Fund' },
@@ -8,4 +11,5 @@ export async function GET() {
     { id: 'GAMMA', name: 'Gamma Fund' },
   ]);
 }
+
 

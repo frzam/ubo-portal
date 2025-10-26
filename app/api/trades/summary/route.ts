@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-static';
+export const revalidate = 60;
+
 // Returns array of { date, status, count }
 export async function GET() {
   const today = new Date();
@@ -16,4 +19,5 @@ export async function GET() {
 
   return NextResponse.json(data);
 }
+
 

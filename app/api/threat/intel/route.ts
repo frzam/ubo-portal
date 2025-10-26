@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-static';
+export const revalidate = 60;
+
 export async function GET() {
   const rows = [
     { date: '2025-10-18', threatType: 'Phishing', source: 'Vendor Feed A', severity: 'Medium', status: 'Monitoring' },
@@ -8,4 +11,5 @@ export async function GET() {
   ];
   return NextResponse.json(rows);
 }
+
 

@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-static';
+export const revalidate = 60;
+
 export async function GET() {
   const funds = ['Alpha Fund', 'Beta Fund', 'Gamma Fund', 'Delta Fund'];
   const types = ['Cash', 'Position', 'Price', 'FX'];
@@ -11,4 +14,5 @@ export async function GET() {
   }
   return NextResponse.json(data);
 }
+
 

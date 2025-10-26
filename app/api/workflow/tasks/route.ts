@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-static';
+export const revalidate = 60;
+
 // Mock richer workflow tasks dataset
 export async function GET() {
   const now = new Date();
@@ -93,4 +96,5 @@ export async function GET() {
   ];
   return NextResponse.json(tasks);
 }
+
 

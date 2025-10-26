@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-static';
+export const revalidate = 60;
+
 export async function GET() {
   const rows = [
     { auditPoint: 'NAV review evidence missing', severity: 'High', assignedTo: 'analyst_2', targetDate: '2025-11-02', status: 'Open' },
@@ -8,4 +11,5 @@ export async function GET() {
   ];
   return NextResponse.json(rows);
 }
+
 

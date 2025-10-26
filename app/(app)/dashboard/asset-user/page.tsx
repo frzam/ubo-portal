@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { KpiCard } from '@/components/dashboard/KpiCard';
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
@@ -9,6 +10,7 @@ const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false });
 type Kpis = { trades_today: number; nav_computed: number; recon_breaks: number; compliance_alerts: number };
 
 export default function AssetUserDashboardPage() {
+  const router = useRouter();
   const [kpis, setKpis] = useState<Kpis | null>(null);
   const [tradeSummary, setTradeSummary] = useState<any[]>([]);
   const [settlement, setSettlement] = useState<any[]>([]);
@@ -18,6 +20,24 @@ export default function AssetUserDashboardPage() {
   const [workflow, setWorkflow] = useState<any[]>([]);
   const [corpActions, setCorpActions] = useState<any[]>([]);
   const [refHealth, setRefHealth] = useState<any[]>([]);
+  // Theme reactivity for charts
+  const [themeVersion, setThemeVersion] = useState(0);
+  useEffect(() => {
+    const el = document.documentElement;
+    const obs = new MutationObserver((muts) => {
+      for (const m of muts) {
+        if (m.type === 'attributes' && m.attributeName === 'class') setThemeVersion((v) => v + 1);
+      }
+    });
+    obs.observe(el, { attributes: true, attributeFilter: ['class'] });
+    return () => obs.disconnect();
+  }, []);
+  const cssVar = (name: string, fallback?: string) => {
+    if (typeof window === 'undefined') return fallback || '';
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name);
+    return v?.trim() || fallback || '';
+  };
+  const formatK = (v: number) => (Math.abs(v) >= 1000 ? `${Math.round(v / 100) / 10}k` : `${v}`);
 
   useEffect(() => {
     let alive = true;
@@ -70,83 +90,107 @@ export default function AssetUserDashboardPage() {
       emphasis: { focus: 'series' },
       data: dates.map((dt) => tradeSummary.find((d) => d.date === dt && d.trade_status === s)?.count ?? 0),
     }));
+    const border = cssVar('--border', '#ddd');
+    const card = cssVar('--card', '#fff');
+    const fg = cssVar('--foreground', '#111');
     return {
-      tooltip: { trigger: 'axis' },
-      legend: { bottom: 0 },
-      grid: { left: 40, right: 16, top: 24, bottom: 40 },
-      xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: 'var(--border)' } } },
-      yAxis: { type: 'value', axisLine: { lineStyle: { color: 'var(--border)' } } },
+      backgroundColor: card,
+      tooltip: { trigger: 'axis', backgroundColor: card, borderColor: border, textStyle: { color: fg } },
+      legend: { bottom: 16, itemGap: 12, padding: [4, 0, 0, 0], textStyle: { color: cssVar('--muted-foreground', fg) } },
+      grid: { left: 56, right: 16, top: 24, bottom: 64, containLabel: true },
+      xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: border } }, axisLabel: { color: cssVar('--muted-foreground', fg), margin: 12 }, splitLine: { show: true, lineStyle: { color: border } } },
+      yAxis: { type: 'value', axisLine: { lineStyle: { color: border } }, axisLabel: { color: cssVar('--muted-foreground', fg), margin: 12, formatter: (v: number) => formatK(v) }, splitLine: { show: true, lineStyle: { color: border } } },
       series,
     } as any;
-  }, [tradeSummary]);
+  }, [tradeSummary, themeVersion]);
 
   const settlementOption = useMemo(() => {
     if (!settlement || settlement.length === 0) return null as any;
+    const border = cssVar('--border', '#ddd');
+    const card = cssVar('--card', '#fff');
+    const fg = cssVar('--foreground', '#111');
+    const primary = cssVar('--primary', '#6366f1');
+    const muted = cssVar('--muted', '#eee');
     return {
-      tooltip: { trigger: 'axis' },
-      grid: { left: 40, right: 16, top: 24, bottom: 28 },
-      xAxis: { type: 'category', data: settlement.map((d) => d.date), axisLine: { lineStyle: { color: 'var(--border)' } } },
-      yAxis: { type: 'value', min: 0, max: 100, axisLabel: { formatter: '{value}%' }, axisLine: { lineStyle: { color: 'var(--border)' } } },
+      backgroundColor: card,
+      tooltip: { trigger: 'axis', backgroundColor: card, borderColor: border, textStyle: { color: fg } },
+      grid: { left: 56, right: 16, top: 24, bottom: 64 },
+      xAxis: { type: 'category', data: settlement.map((d) => d.date), axisLine: { lineStyle: { color: border } }, axisLabel: { color: cssVar('--muted-foreground', fg) }, splitLine: { show: true, lineStyle: { color: border } } },
+      yAxis: { type: 'value', min: 0, max: 100, axisLabel: { formatter: '{value}%', color: cssVar('--muted-foreground', fg) }, axisLine: { lineStyle: { color: border } }, splitLine: { show: true, lineStyle: { color: border } } },
       series: [
         {
           name: 'Success Rate',
           type: 'line',
           showSymbol: false,
-          lineStyle: { width: 2, color: 'var(--primary)' },
-          areaStyle: { color: 'var(--muted)' },
+          lineStyle: { width: 1.5, color: primary },
+          areaStyle: { color: muted },
           data: settlement.map((d) => d.success_rate),
         },
       ],
     } as any;
-  }, [settlement]);
+  }, [settlement, themeVersion]);
 
   const reconOption = useMemo(() => {
     const funds = Array.from(new Set(recon.map((d) => d.fund_name)));
     const types = Array.from(new Set(recon.map((d) => d.exception_type)));
     if (funds.length === 0 || types.length === 0) return null as any;
     const data = recon.map((d) => [funds.indexOf(d.fund_name), types.indexOf(d.exception_type), d.count]);
+    const border = cssVar('--border', '#ddd');
+    const card = cssVar('--card', '#fff');
+    const fg = cssVar('--foreground', '#111');
     return {
-      tooltip: { position: 'top' },
-      grid: { left: 80, right: 16, top: 24, bottom: 40 },
-      xAxis: { type: 'category', data: funds, axisLine: { lineStyle: { color: 'var(--border)' } } },
-      yAxis: { type: 'category', data: types, axisLine: { lineStyle: { color: 'var(--border)' } } },
-      visualMap: { min: 0, max: 6, calculable: false, orient: 'horizontal', left: 'center', bottom: 0 },
+      backgroundColor: card,
+      tooltip: { position: 'top', backgroundColor: card, borderColor: border, textStyle: { color: fg } },
+      grid: { left: 80, right: 72, top: 24, bottom: 24 },
+      xAxis: { type: 'category', data: funds, axisLine: { lineStyle: { color: border } }, axisLabel: { color: cssVar('--muted-foreground', fg) } },
+      yAxis: { type: 'category', data: types, axisLine: { lineStyle: { color: border } }, axisLabel: { color: cssVar('--muted-foreground', fg) } },
+      visualMap: { min: 0, max: 6, calculable: false, orient: 'vertical', right: 0, top: 'middle', textStyle: { color: cssVar('--muted-foreground', fg) } },
       series: [{ name: 'Breaks', type: 'heatmap', data, label: { show: false }, emphasis: { itemStyle: { shadowBlur: 10 } } }],
     } as any;
-  }, [recon]);
+  }, [recon, themeVersion]);
 
   const navOption = useMemo(() => {
     if (!navStatus || navStatus.length === 0) return null as any;
     const total = navStatus.reduce((a, b) => a + (b.count || 0), 0) || 1;
+    const border = cssVar('--border', '#ddd');
+    const card = cssVar('--card', '#fff');
+    const fg = cssVar('--foreground', '#111');
     return {
-      tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
-      legend: { bottom: 0 },
+      backgroundColor: card,
+      tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)', backgroundColor: card, borderColor: border, textStyle: { color: fg } },
+      legend: { orient: 'vertical', right: 0, top: 'middle', itemGap: 10, textStyle: { color: cssVar('--muted-foreground', fg), fontSize: 11 } },
       series: [
         {
           type: 'pie',
-          radius: ['55%', '80%'],
+          center: ['36%', '52%'],
+          radius: ['46%', '70%'],
           avoidLabelOverlap: true,
-          itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 1 },
-          label: { show: true, formatter: (p: any) => `${p.name} ${(p.value / total * 100).toFixed(0)}%` },
+          itemStyle: { borderRadius: 6, borderColor: card, borderWidth: 1 },
+          label: { show: true, color: fg, formatter: (p: any) => `${p.name} ${(p.percent || 0).toFixed(0)}%` },
+          labelLayout: { hideOverlap: true },
+          labelLine: { show: true, length: 8, length2: 8 },
           data: navStatus.map((d) => ({ name: d.status, value: d.count })),
         },
       ],
     } as any;
-  }, [navStatus]);
+  }, [navStatus, themeVersion]);
 
   const radarOption = useMemo(() => {
     if (!refHealth || refHealth.length === 0) return null as any;
+    const border = cssVar('--border', '#ddd');
+    const card = cssVar('--card', '#fff');
+    const fg = cssVar('--foreground', '#111');
     return {
-      tooltip: {},
+      tooltip: { backgroundColor: card, borderColor: border, textStyle: { color: fg } },
       radar: {
         indicator: refHealth.map((d) => ({ name: d.category, max: 100 })),
-        axisName: { color: 'var(--foreground)' },
+        axisName: { color: fg },
       },
       series: [
         {
           type: 'radar',
           areaStyle: { opacity: 0.2 },
-          lineStyle: { width: 2, color: 'var(--primary)' },
+          lineStyle: { width: 2, color: cssVar('--primary', '#6366f1') },
           data: [
             {
               value: refHealth.map((d) => d.score),
@@ -156,7 +200,7 @@ export default function AssetUserDashboardPage() {
         },
       ],
     } as any;
-  }, [refHealth]);
+  }, [refHealth, themeVersion]);
 
   const unmatchedToday = useMemo(() => {
     if (!tradeSummary || tradeSummary.length === 0) return null as number | null;
@@ -190,7 +234,7 @@ export default function AssetUserDashboardPage() {
         <KpiCard label="Settlement Success (%)" value={settlementToday ?? '—'} color="green" />
         <KpiCard label="NAV Computed" value={kpis?.nav_computed ?? '—'} color="green" />
         <KpiCard label="NAV Pending" value={navPending ?? '—'} color="orange" />
-        <KpiCard label="Recon Breaks" value={kpis?.recon_breaks ?? '—'} color="red" />
+        <KpiCard label="Recon Breaks" value={kpis?.recon_breaks ?? '—'} color="red" onClick={() => router.push('/reconciliation?status=Mismatched')} />
       </div>
 
       {/* Charts row 1 */}
@@ -198,7 +242,7 @@ export default function AssetUserDashboardPage() {
         <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
           <h2 className="text-sm font-medium text-[color:var(--foreground)]">Trade Processing Summary</h2>
           <p className="text-xs text-slate-500">Matched vs Unmatched trades by day</p>
-          <div className="mt-2 h-[220px]">
+          <div className="mt-2 h-[200px]">
             {tradeOption ? (
               // @ts-ignore
               <ReactECharts option={tradeOption} style={{ height: '100%', width: '100%' }} />
@@ -209,7 +253,7 @@ export default function AssetUserDashboardPage() {
         </div>
         <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
           <h2 className="text-sm font-medium text-[color:var(--foreground)]">Settlement Success Rate</h2>
-          <div className="mt-2 h-[220px]">
+          <div className="mt-2 h-[200px]">
             {settlementOption ? (
               // @ts-ignore
               <ReactECharts option={settlementOption} style={{ height: '100%', width: '100%' }} />
@@ -220,7 +264,7 @@ export default function AssetUserDashboardPage() {
         </div>
         <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
           <h2 className="text-sm font-medium text-[color:var(--foreground)]">NAV Computation Status</h2>
-          <div className="mt-2 h-[220px]">
+          <div className="mt-2 h-[200px]">
             {navOption ? (
               // @ts-ignore
               <ReactECharts option={navOption} style={{ height: '100%', width: '100%' }} />
@@ -235,7 +279,7 @@ export default function AssetUserDashboardPage() {
       <div className="mt-4 grid gap-3 grid-cols-1 md:grid-cols-2">
         <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
           <h2 className="text-sm font-medium text-[color:var(--foreground)]">Reconciliation Exceptions by Fund</h2>
-          <div className="mt-2 h-[240px]">
+          <div className="mt-2 h-[220px]">
             {reconOption ? (
               // @ts-ignore
               <ReactECharts option={reconOption} style={{ height: '100%', width: '100%' }} />
@@ -246,7 +290,7 @@ export default function AssetUserDashboardPage() {
         </div>
         <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
           <h2 className="text-sm font-medium text-[color:var(--foreground)]">Reference Data Health</h2>
-          <div className="mt-2 h-[240px]">
+          <div className="mt-2 h-[220px]">
             {radarOption ? (
               // @ts-ignore
               <ReactECharts option={radarOption} style={{ height: '100%', width: '100%' }} />

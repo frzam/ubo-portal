@@ -22,6 +22,24 @@ export default function InfoSecDashboardPage() {
   const [anomalies, setAnomalies] = useState<any[]>([]);
   const [iamReqs, setIamReqs] = useState<any[]>([]);
   const [autoSec, setAutoSec] = useState<any[]>([]);
+  // Theme reactivity for charts
+  const [themeVersion, setThemeVersion] = useState(0);
+  useEffect(() => {
+    const el = document.documentElement;
+    const obs = new MutationObserver((muts) => {
+      for (const m of muts) {
+        if (m.type === 'attributes' && m.attributeName === 'class') setThemeVersion((v) => v + 1);
+      }
+    });
+    obs.observe(el, { attributes: true, attributeFilter: ['class'] });
+    return () => obs.disconnect();
+  }, []);
+  const cssVar = (name: string, fallback?: string) => {
+    if (typeof window === 'undefined') return fallback || '';
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name);
+    return v?.trim() || fallback || '';
+  };
+  const formatK = (v: number) => (Math.abs(v) >= 1000 ? `${Math.round(v / 100) / 10}k` : `${v}`);
 
   useEffect(() => {
     let alive = true;
@@ -75,86 +93,114 @@ export default function InfoSecDashboardPage() {
 
   const accessOption = useMemo(() => {
     if (!roleDist || roleDist.length === 0) return null as any;
+    const border = cssVar('--border', '#ddd');
+    const card = cssVar('--card', '#fff');
+    const fg = cssVar('--foreground', '#111');
     return {
-      tooltip: { trigger: 'axis' },
+      backgroundColor: card,
+      tooltip: { trigger: 'axis', backgroundColor: card, borderColor: border, textStyle: { color: fg } },
       grid: { left: 120, right: 16, top: 24, bottom: 24 },
-      xAxis: { type: 'value', axisLine: { lineStyle: { color: 'var(--border)' } } },
-      yAxis: { type: 'category', data: roleDist.map((r) => r.role), axisLine: { lineStyle: { color: 'var(--border)' } } },
+      xAxis: { type: 'value', axisLine: { lineStyle: { color: border } }, axisLabel: { color: cssVar('--muted-foreground', fg), formatter: (v: number) => formatK(v) }, splitLine: { show: true, lineStyle: { color: border } } },
+      yAxis: { type: 'category', data: roleDist.map((r) => r.role), axisLine: { lineStyle: { color: border } }, axisLabel: { color: cssVar('--muted-foreground', fg) } },
       series: [{ type: 'bar', data: roleDist.map((r) => r.user_count) }],
     } as any;
-  }, [roleDist]);
+  }, [roleDist, themeVersion]);
 
   const loginOption = useMemo(() => {
     if (!loginActivity || loginActivity.length === 0) return null as any;
     const dates = loginActivity.map((d) => d.date);
+    const border = cssVar('--border', '#ddd');
+    const card = cssVar('--card', '#fff');
+    const fg = cssVar('--foreground', '#111');
     return {
-      tooltip: { trigger: 'axis' },
-      legend: { bottom: 0 },
-      grid: { left: 40, right: 16, top: 24, bottom: 40 },
-      xAxis: { type: 'category', data: dates },
-      yAxis: { type: 'value' },
+      backgroundColor: card,
+      tooltip: { trigger: 'axis', backgroundColor: card, borderColor: border, textStyle: { color: fg } },
+      legend: { bottom: 16, itemGap: 12, padding: [4, 0, 0, 0], textStyle: { color: cssVar('--muted-foreground', fg) } },
+      grid: { left: 56, right: 16, top: 24, bottom: 64, containLabel: true },
+      xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: border } }, axisLabel: { color: cssVar('--muted-foreground', fg), margin: 12 }, splitLine: { show: true, lineStyle: { color: border } } },
+      yAxis: { type: 'value', axisLine: { lineStyle: { color: border } }, axisLabel: { color: cssVar('--muted-foreground', fg), margin: 12, formatter: (v: number) => formatK(v) }, splitLine: { show: true, lineStyle: { color: border } } },
       series: [
-        { name: 'Successful', type: 'line', showSymbol: false, data: loginActivity.map((d) => d.successful_logins) },
-        { name: 'Failed', type: 'line', showSymbol: false, data: loginActivity.map((d) => d.failed_logins) },
+        { name: 'Successful', type: 'line', showSymbol: false, lineStyle: { width: 1.5 }, data: loginActivity.map((d) => d.successful_logins) },
+        { name: 'Failed', type: 'line', showSymbol: false, lineStyle: { width: 1.5 }, data: loginActivity.map((d) => d.failed_logins) },
       ],
     } as any;
-  }, [loginActivity]);
+  }, [loginActivity, themeVersion]);
 
   const privOption = useMemo(() => {
     if (!privChanges || privChanges.length === 0) return null as any;
     const dates = privChanges.map((d) => d.date);
+    const border = cssVar('--border', '#ddd');
+    const card = cssVar('--card', '#fff');
+    const fg = cssVar('--foreground', '#111');
     return {
-      tooltip: { trigger: 'axis' },
-      legend: { bottom: 0 },
-      grid: { left: 40, right: 16, top: 24, bottom: 40 },
-      xAxis: { type: 'category', data: dates },
-      yAxis: { type: 'value' },
+      backgroundColor: card,
+      tooltip: { trigger: 'axis', backgroundColor: card, borderColor: border, textStyle: { color: fg } },
+      legend: { bottom: 16, itemGap: 12, padding: [4, 0, 0, 0], textStyle: { color: cssVar('--muted-foreground', fg) } },
+      grid: { left: 56, right: 16, top: 24, bottom: 56, containLabel: true },
+      xAxis: { type: 'category', data: dates, axisLine: { lineStyle: { color: border } }, axisLabel: { color: cssVar('--muted-foreground', fg), margin: 12 }, splitLine: { show: true, lineStyle: { color: border } } },
+      yAxis: { type: 'value', axisLine: { lineStyle: { color: border } }, axisLabel: { color: cssVar('--muted-foreground', fg), margin: 12, formatter: (v: number) => formatK(v) }, splitLine: { show: true, lineStyle: { color: border } } },
       series: [
         { name: 'Granted', type: 'bar', stack: 'total', data: privChanges.map((d) => d.privilege_granted) },
         { name: 'Revoked', type: 'bar', stack: 'total', data: privChanges.map((d) => d.privilege_revoked) },
       ],
     } as any;
-  }, [privChanges]);
+  }, [privChanges, themeVersion]);
 
   const vulnOption = useMemo(() => {
     if (!vulns || vulns.length === 0) return null as any;
+    const border = cssVar('--border', '#ddd');
+    const card = cssVar('--card', '#fff');
+    const fg = cssVar('--foreground', '#111');
     return {
-      tooltip: { trigger: 'item', formatter: '{b}: {c}' },
-      legend: { bottom: 0 },
+      backgroundColor: card,
+      tooltip: { trigger: 'item', formatter: '{b}: {c}', backgroundColor: card, borderColor: border, textStyle: { color: fg } },
+      legend: { orient: 'vertical', right: 0, top: 'middle', itemGap: 10, textStyle: { color: cssVar('--muted-foreground', fg) } },
       series: [
-        { type: 'pie', radius: ['55%', '80%'], data: vulns.map((v) => ({ name: v.severity, value: v.count })) },
+        { type: 'pie', center: ['36%', '52%'], radius: ['46%', '70%'], itemStyle: { borderColor: card, borderWidth: 1 }, label: { show: true, color: fg, formatter: (p: any) => `${p.name} ${(p.percent||0).toFixed(0)}%` }, labelLine: { show: true, length: 8, length2: 8 }, labelLayout: { hideOverlap: true }, data: vulns.map((v) => ({ name: v.severity, value: v.count })) },
       ],
     } as any;
-  }, [vulns]);
+  }, [vulns, themeVersion]);
 
   const patchOption = useMemo(() => {
     if (!patch || patch.length === 0) return null as any;
+    const border = cssVar('--border', '#ddd');
+    const card = cssVar('--card', '#fff');
+    const fg = cssVar('--foreground', '#111');
+    const primary = cssVar('--primary', '#6366f1');
+    const muted = cssVar('--muted', '#eee');
     return {
-      tooltip: { trigger: 'axis' },
-      grid: { left: 40, right: 16, top: 24, bottom: 28 },
-      xAxis: { type: 'category', data: patch.map((d) => d.date) },
-      yAxis: { type: 'value', min: 0, max: 100, axisLabel: { formatter: '{value}%' } },
-      series: [{ type: 'line', showSymbol: false, data: patch.map((d) => d.compliance_rate) }],
+      backgroundColor: card,
+      tooltip: { trigger: 'axis', backgroundColor: card, borderColor: border, textStyle: { color: fg } },
+      grid: { left: 56, right: 16, top: 24, bottom: 28 },
+      xAxis: { type: 'category', data: patch.map((d) => d.date), axisLine: { lineStyle: { color: border } }, axisLabel: { color: cssVar('--muted-foreground', fg) }, splitLine: { show: true, lineStyle: { color: border } } },
+      yAxis: { type: 'value', min: 0, max: 100, axisLabel: { formatter: '{value}%', color: cssVar('--muted-foreground', fg) }, axisLine: { lineStyle: { color: border } }, splitLine: { show: true, lineStyle: { color: border } } },
+      series: [{ type: 'line', showSymbol: false, lineStyle: { color: primary }, areaStyle: { color: muted, opacity: 0.25 }, data: patch.map((d) => d.compliance_rate) }],
     } as any;
-  }, [patch]);
+  }, [patch, themeVersion]);
 
   const dataProtOption = useMemo(() => {
     if (!dataProt || dataProt.length === 0) return null as any;
+    const border = cssVar('--border', '#ddd');
+    const card = cssVar('--card', '#fff');
+    const fg = cssVar('--foreground', '#111');
     return {
-      tooltip: {},
-      radar: { indicator: dataProt.map((d) => ({ name: d.category, max: 100 })) },
-      series: [{ type: 'radar', areaStyle: { opacity: 0.2 }, data: [{ value: dataProt.map((d) => d.score), name: 'Coverage' }] }],
+      tooltip: { backgroundColor: card, borderColor: border, textStyle: { color: fg } },
+      radar: { indicator: dataProt.map((d) => ({ name: d.category, max: 100 })), axisName: { color: fg } },
+      series: [{ type: 'radar', areaStyle: { opacity: 0.2 }, lineStyle: { color: cssVar('--primary', '#6366f1') }, data: [{ value: dataProt.map((d) => d.score), name: 'Coverage' }] }],
     } as any;
-  }, [dataProt]);
+  }, [dataProt, themeVersion]);
 
   const autoSecOption = useMemo(() => {
     if (!autoSec || autoSec.length === 0) return null as any;
+    const border = cssVar('--border', '#ddd');
+    const card = cssVar('--card', '#fff');
+    const fg = cssVar('--foreground', '#111');
     return {
-      tooltip: { trigger: 'item', formatter: '{b}: {c}%' },
-      legend: { bottom: 0 },
-      series: [{ type: 'pie', radius: ['50%', '75%'], data: autoSec.map((d) => ({ name: d.process_type, value: d.percentage })) }],
+      tooltip: { trigger: 'item', formatter: '{b}: {c}%', backgroundColor: card, borderColor: border, textStyle: { color: fg } },
+      legend: { orient: 'vertical', right: 0, top: 'middle', itemGap: 10, textStyle: { color: cssVar('--muted-foreground', fg), fontSize: 11 } },
+      series: [{ type: 'pie', center: ['36%', '52%'], radius: ['46%', '70%'], selectedMode: false, hoverAnimation: false, emphasis: { disabled: true }, itemStyle: { borderColor: card, borderWidth: 1 }, label: { show: true, color: fg, formatter: (p: any) => `${p.name} ${(p.percent||0).toFixed(0)}%` }, labelLine: { show: true, length: 8, length2: 8 }, labelLayout: { hideOverlap: true }, data: autoSec.map((d) => ({ name: d.process_type, value: d.percentage })) }],
     } as any;
-  }, [autoSec]);
+  }, [autoSec, themeVersion]);
 
   return (
     <div className="p-4">
@@ -175,7 +221,7 @@ export default function InfoSecDashboardPage() {
       <div className="mt-4 grid gap-3 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
         <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
           <h2 className="text-sm font-medium text-[color:var(--foreground)]">Access Control Summary</h2>
-          <div className="mt-2 h-[220px]">
+          <div className="mt-2 h-[200px]">
             {accessOption ? (
               // @ts-ignore
               <ReactECharts option={accessOption} style={{ height: '100%', width: '100%' }} />
@@ -186,7 +232,7 @@ export default function InfoSecDashboardPage() {
         </div>
         <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
           <h2 className="text-sm font-medium text-[color:var(--foreground)]">Login Activity (7 days)</h2>
-          <div className="mt-2 h-[220px]">
+          <div className="mt-2 h-[200px]">
             {loginOption ? (
               // @ts-ignore
               <ReactECharts option={loginOption} style={{ height: '100%', width: '100%' }} />
@@ -197,7 +243,7 @@ export default function InfoSecDashboardPage() {
         </div>
         <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
           <h2 className="text-sm font-medium text-[color:var(--foreground)]">Privileged Access Monitoring</h2>
-          <div className="mt-2 h-[220px]">
+          <div className="mt-2 h-[200px]">
             {privOption ? (
               // @ts-ignore
               <ReactECharts option={privOption} style={{ height: '100%', width: '100%' }} />
@@ -212,7 +258,7 @@ export default function InfoSecDashboardPage() {
       <div className="mt-4 grid gap-3 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
         <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
           <h2 className="text-sm font-medium text-[color:var(--foreground)]">Vulnerability Overview</h2>
-          <div className="mt-2 h-[220px]">
+          <div className="mt-2 h-[200px]">
             {vulnOption ? (
               // @ts-ignore
               <ReactECharts option={vulnOption} style={{ height: '100%', width: '100%' }} />
@@ -223,7 +269,7 @@ export default function InfoSecDashboardPage() {
         </div>
         <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
           <h2 className="text-sm font-medium text-[color:var(--foreground)]">Patch Compliance Trend</h2>
-          <div className="mt-2 h-[220px]">
+          <div className="mt-2 h-[200px]">
             {patchOption ? (
               // @ts-ignore
               <ReactECharts option={patchOption} style={{ height: '100%', width: '100%' }} />
@@ -234,7 +280,7 @@ export default function InfoSecDashboardPage() {
         </div>
         <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
           <h2 className="text-sm font-medium text-[color:var(--foreground)]">Data Protection & Encryption</h2>
-          <div className="mt-2 h-[220px]">
+          <div className="mt-2 h-[200px]">
             {dataProtOption ? (
               // @ts-ignore
               <ReactECharts option={dataProtOption} style={{ height: '100%', width: '100%' }} />
@@ -261,7 +307,7 @@ export default function InfoSecDashboardPage() {
         </div>
         <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
           <h2 className="text-sm font-medium text-[color:var(--foreground)]">Security Automation Efficiency</h2>
-          <div className="mt-2 h-[240px]">
+          <div className="mt-2 h-[220px]">
             {autoSecOption ? (
               // @ts-ignore
               <ReactECharts option={autoSecOption} style={{ height: '100%', width: '100%' }} />
@@ -303,7 +349,7 @@ export default function InfoSecDashboardPage() {
         </div>
         <div className="rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
           <h2 className="text-sm font-medium text-[color:var(--foreground)]">Compliance Frameworks</h2>
-          <div className="mt-2 h-[220px]">
+          <div className="mt-2 h-[200px]">
             {/* Simple bar using frameworks */}
             {frameworks.length > 0 ? (
               // @ts-ignore

@@ -41,6 +41,25 @@ export default function WorkflowPage() {
   const [dueRange, setDueRange] = useState<string>('All');
   const [slaFlag, setSlaFlag] = useState<string>('All');
 
+  // React to theme toggles so charts re-read CSS variables
+  const [themeVersion, setThemeVersion] = useState(0);
+  useEffect(() => {
+    const el = document.documentElement;
+    const obs = new MutationObserver((muts) => {
+      for (const m of muts) {
+        if (m.type === 'attributes' && m.attributeName === 'class') setThemeVersion((v) => v + 1);
+      }
+    });
+    obs.observe(el, { attributes: true, attributeFilter: ['class'] });
+    return () => obs.disconnect();
+  }, []);
+  const cssVar = (name: string, fallback?: string) => {
+    if (typeof window === 'undefined') return fallback || '';
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name);
+    return v?.trim() || fallback || '';
+  };
+  const formatK = (v: number) => (Math.abs(v) >= 1000 ? `${Math.round(v / 100) / 10}k` : `${v}`);
+
   useEffect(() => {
     fetch('/api/auth/me')
       .then((r) => (r.ok ? r.json() : null))
@@ -101,22 +120,58 @@ export default function WorkflowPage() {
     for (const t of visibleTasks) counts[t.process_type] = (counts[t.process_type] || 0) + 1;
     const data = Object.entries(counts).map(([name, value]) => ({ name, value }));
     if (data.length === 0) return null as any;
-    return { tooltip: { trigger: 'item' }, series: [{ type: 'pie', radius: ['55%', '80%'], data }] } as any;
-  }, [visibleTasks]);
+    const border = cssVar('--border', '#ddd');
+    const card = cssVar('--card', '#fff');
+    const fg = cssVar('--foreground', '#111');
+    const palette = [
+      cssVar('--chart-1', '#6366f1'),
+      cssVar('--chart-2', '#8b5cf6'),
+      cssVar('--chart-3', '#0ea5e9'),
+      cssVar('--chart-4', '#22c55e'),
+      cssVar('--chart-5', '#f59e0b'),
+    ];
+    return {
+      backgroundColor: card,
+      tooltip: { trigger: 'item', backgroundColor: card, borderColor: border, textStyle: { color: fg }, formatter: (p: any) => `${p.name}: ${formatK(p.value)}` },
+      // Use a scrolling bottom legend to avoid overlap when width shrinks (e.g., sidebar open)
+      legend: { type: 'scroll', bottom: 0, left: 0, right: 0, textStyle: { color: cssVar('--muted-foreground', fg) } },
+      color: palette,
+      series: [
+        {
+          type: 'pie',
+          // Keep the pie centered with slightly smaller radius to make room for legend
+          center: ['50%', '45%'],
+          radius: ['46%', '68%'],
+          itemStyle: { borderRadius: 6, borderColor: card, borderWidth: 1 },
+          selectedMode: false,
+          hoverAnimation: false,
+          emphasis: { disabled: true },
+          // Keep labels off to prevent collisions in tight layouts
+          label: { show: false },
+          labelLine: { show: false },
+          data,
+        },
+      ],
+    } as any;
+  }, [visibleTasks, themeVersion]);
 
   const byAssigneeOption = useMemo(() => {
     const counts: Record<string, number> = {};
     for (const t of visibleTasks) counts[t.assigned_to] = (counts[t.assigned_to] || 0) + 1;
     const users = Object.keys(counts);
     if (users.length === 0) return null as any;
+    const border = cssVar('--border', '#ddd');
+    const card = cssVar('--card', '#fff');
+    const fg = cssVar('--foreground', '#111');
     return {
-      tooltip: { trigger: 'axis' },
-      xAxis: { type: 'category', data: users },
-      yAxis: { type: 'value' },
+      backgroundColor: card,
+      tooltip: { trigger: 'axis', backgroundColor: card, borderColor: border, textStyle: { color: fg } },
+      grid: { left: 56, right: 16, top: 24, bottom: 40 },
+      xAxis: { type: 'category', data: users, axisLine: { lineStyle: { color: border } }, axisLabel: { color: cssVar('--muted-foreground', fg) }, splitLine: { show: true, lineStyle: { color: border } } },
+      yAxis: { type: 'value', axisLine: { lineStyle: { color: border } }, axisLabel: { color: cssVar('--muted-foreground', fg), formatter: (v: number) => formatK(v) }, splitLine: { show: true, lineStyle: { color: border } } },
       series: [{ type: 'bar', data: users.map((u) => counts[u]) }],
-      grid: { left: 40, right: 16, top: 24, bottom: 40 },
     } as any;
-  }, [visibleTasks]);
+  }, [visibleTasks, themeVersion]);
 
   return (
     <div className="p-6">
@@ -239,14 +294,28 @@ export default function WorkflowPage() {
           <h2 className="text-sm font-medium text-[color:var(--foreground)]">Overview Metrics</h2>
           <div className="mt-2 h-[220px]">
             {(() => {
+              const border = cssVar('--border', '#ddd');
+              const card = cssVar('--card', '#fff');
+              const fg = cssVar('--foreground', '#111');
+              const palette = [cssVar('--chart-1', '#6366f1'), cssVar('--chart-2', '#8b5cf6'), cssVar('--chart-3', '#22c55e')];
               const option = {
-                tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
-                legend: { bottom: 0 },
+                backgroundColor: card,
+                tooltip: { trigger: 'item', backgroundColor: card, borderColor: border, textStyle: { color: fg }, formatter: (p: any) => `${p.name}: ${formatK(p.value)}` },
+                // Use scrolling bottom legend to prevent overlap in short container
+                legend: { type: 'scroll', bottom: 0, left: 0, right: 0, textStyle: { color: cssVar('--muted-foreground', fg) } },
+                color: palette,
                 series: [
                   {
                     type: 'pie',
-                    radius: ['55%', '80%'],
-                    itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 1 },
+                    center: ['50%', '45%'],
+                    radius: ['46%', '68%'],
+                    itemStyle: { borderRadius: 6, borderColor: card, borderWidth: 1 },
+                    selectedMode: false,
+                    hoverAnimation: false,
+                    emphasis: { disabled: true },
+                    // Hide labels to avoid collisions; rely on legend + tooltip
+                    label: { show: false },
+                    labelLine: { show: false },
                     data: [
                       { name: 'Pending', value: kpis.totalPending },
                       { name: 'Overdue', value: kpis.overdue },

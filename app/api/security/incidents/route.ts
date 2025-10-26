@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-static';
+export const revalidate = 60;
+
 export async function GET() {
   const items = [
     { ts: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(), title: 'Multiple failed logins from 10.2.3.4', status: 'Investigating' },
@@ -8,4 +11,5 @@ export async function GET() {
   ];
   return NextResponse.json(items);
 }
+
 

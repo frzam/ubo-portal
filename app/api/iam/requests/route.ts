@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-static';
+export const revalidate = 60;
+
 export async function GET() {
   const rows = [
     { requestId: 'REQ-10021', user: 'analyst_5', roleRequested: 'asset_user', submittedAt: '2025-10-18T11:21:00Z', status: 'Pending' },
@@ -7,4 +10,5 @@ export async function GET() {
   ];
   return NextResponse.json(rows);
 }
+
 

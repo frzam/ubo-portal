@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-static';
+export const revalidate = 60;
+
 export async function GET() {
   const today = new Date();
   const fmt = (d: Date) => d.toISOString().slice(0, 10);
@@ -10,4 +13,5 @@ export async function GET() {
   ];
   return NextResponse.json(items);
 }
+
 

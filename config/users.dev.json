@@ -2,29 +2,39 @@
   "admin": {
     "roles": [
       "admin"
-    ]
+    ],
+    "fullName": "Admin User",
+    "employeeId": "EMP-000001"
   },
   "asset_user_1": {
     "roles": [
       "asset_user"
     ],
-    "password": "asset4ubo"
+    "password": "asset4ubo",
+    "fullName": "Asset User One",
+    "employeeId": "EMP-100101"
   },
   "asset_manager_1": {
     "roles": [
       "asset_manager"
     ],
-    "password": "manager4ubo"
+    "password": "manager4ubo",
+    "fullName": "Asset Manager One",
+    "employeeId": "EMP-200201"
   },
   "infosec_admin_1": {
     "roles": [
       "infosec_admin"
     ],
-    "password": "infosec4ubo"
+    "password": "infosec4ubo",
+    "fullName": "Infosec Administrator",
+    "employeeId": "EMP-300301"
   },
   "demo": {
     "roles": [
       "admin"
-    ]
+    ],
+    "fullName": "Demo User",
+    "employeeId": "EMP-999999"
   }
 }

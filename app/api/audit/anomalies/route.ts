@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-static';
+export const revalidate = 60;
+
 export async function GET() {
   const rows = [
     { userId: 'asset_user_2', activity: 'Unusual after-hours access', detectedAt: '2025-10-19T02:14:00Z', riskScore: 78, actionTaken: 'Notified' },
@@ -7,4 +10,5 @@ export async function GET() {
   ];
   return NextResponse.json(rows);
 }
+
 
