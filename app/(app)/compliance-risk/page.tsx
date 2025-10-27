@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import AuditTrailTable from '@/components/audit/AuditTrailTable';
 
 type AuditIssue = { auditPoint: string; severity: string; assignedTo: string; targetDate: string; status: string };
 type AuditLog = { type: 'login' | 'logout'; username: string; timestamp: string; ip?: string; userAgent?: string };
@@ -75,36 +76,7 @@ export default function ComplianceRiskPage() {
 
       <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
         <h2 className="text-sm font-medium text-[color:var(--foreground)]">User Login/Logout Audit Trail</h2>
-        <div className="mt-2 overflow-auto">
-          <table className="min-w-full text-sm">
-            <thead className="bg-[var(--muted)] text-[color:var(--foreground)]">
-              <tr>
-                <th className="px-3 py-2 text-left">Timestamp</th>
-                <th className="px-3 py-2 text-left">User</th>
-                <th className="px-3 py-2 text-left">Event</th>
-                <th className="px-3 py-2 text-left">IP</th>
-                <th className="px-3 py-2 text-left">Agent</th>
-              </tr>
-            </thead>
-            <tbody>
-              {auditLogs.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-3 py-6 text-center text-[color:var(--muted-foreground)]">No audit entries yet.</td>
-                </tr>
-              ) : (
-                auditLogs.slice().reverse().map((e, idx) => (
-                  <tr key={idx} className="border-t border-[var(--border)]">
-                    <td className="px-3 py-2 whitespace-nowrap">{new Date(e.timestamp).toLocaleString()}</td>
-                    <td className="px-3 py-2 whitespace-nowrap">{e.username}</td>
-                    <td className="px-3 py-2 whitespace-nowrap capitalize">{e.type}</td>
-                    <td className="px-3 py-2 whitespace-nowrap">{e.ip || '-'}</td>
-                    <td className="px-3 py-2 truncate max-w-[320px]">{e.userAgent || '-'}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <AuditTrailTable logs={auditLogs} pageSize={20} />
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-
-export const dynamic = 'force-static';
-export const revalidate = 60;
+// Always read the latest audit-log.json on each request
+export const dynamic = 'force-dynamic';
 import { readAudit } from '@/lib/audit';
 
 export async function GET() {
