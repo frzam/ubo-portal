@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getCustomerKey, makeCustomerData } from '../_data';
 
-export async function GET(_req: NextRequest) {
-  return NextResponse.json([
-    { facility_type: 'Margin Loan', outstanding_amount: 120000 },
-    { facility_type: 'Overdraft', outstanding_amount: 40000 },
-  ]);
+export async function GET(req: NextRequest) {
+  const key = getCustomerKey(req);
+  const data = makeCustomerData(key);
+  return NextResponse.json(data.liabilities);
 }
 
 

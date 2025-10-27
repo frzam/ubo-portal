@@ -1,20 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getCustomerKey, getIdentity, makeCustomerData } from '../_data';
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
-  const url = new URL(req.url);
-  const cif = url.searchParams.get('cif') || '000123456';
-  const name = url.searchParams.get('customer_name') || 'John Doe';
-  const segment = url.searchParams.get('segment') || 'HNI';
-  return NextResponse.json({
-    customer_name: name,
-    cif,
-    id_number: '1020304050',
-    dob: '1985-07-12',
-    nationality: 'Saudi',
-    segment,
-    rm_name: 'Fatimah Al‑Harbi',
-    risk_rating: 'Moderate',
-  });
+  const key = getCustomerKey(req);
+  const id = getIdentity(req);
+  const data = makeCustomerData(key, id);
+  return NextResponse.json(data.profile);
 }
-
-

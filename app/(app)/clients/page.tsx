@@ -171,8 +171,8 @@ export default function ClientsPage() {
       byType[t] = (byType[t] || 0) + v;
     }
 
-    // Ensure a consolidated "Derivaties" category exists.
-    // Merge any variants like "Derivative" / "Derivatives" into it.
+    // Ensure a consolidated "Derivative" category exists.
+    // Merge any variants like "Derivatives" into it.
     let derivVal = 0;
     for (const k of Object.keys(byType)) {
       if (/^deriv/i.test(k)) {
@@ -181,8 +181,8 @@ export default function ClientsPage() {
       }
     }
     // Always include the category even if total is 0 so it's visible in the legend
-    // Add fixed 15000 to Derivaties as requested
-    byType['Derivaties'] = (byType['Derivaties'] || 0) + derivVal + 15000;
+    // Add fixed 15000 to Derivative as requested
+    byType['Derivative'] = (byType['Derivative'] || 0) + derivVal + 15000;
 
     const data = Object.entries(byType).map(([name, value]) => ({ name, value }));
     const border = cssVar('--border', '#ddd');

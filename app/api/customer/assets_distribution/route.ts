@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getCustomerKey, makeCustomerData } from '../_data';
+export const dynamic = 'force-dynamic';
 
-export async function GET(_req: NextRequest) {
-  return NextResponse.json([
-    { product: 'Mutual Funds', asset_value: 450000 },
-    { product: 'Equities', asset_value: 220000 },
-    { product: 'Fixed Income', asset_value: 160000 },
-    { product: 'Deposits', asset_value: 80000 },
-  ]);
+export async function GET(req: NextRequest) {
+  const key = getCustomerKey(req);
+  const data = makeCustomerData(key);
+  return NextResponse.json(data.assets_distribution);
 }
 
 

@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getCustomerKey, makeCustomerData } from '../_data';
+export const dynamic = 'force-dynamic';
 
-export async function GET(_req: NextRequest) {
-  return NextResponse.json([
-    { status_type: 'KYC Complete', count: 1 },
-    { status_type: 'AML Screening', count: 1 },
-    { status_type: 'FATCA', count: 1 },
-    { status_type: 'CRS', count: 1 },
-  ]);
+export async function GET(req: NextRequest) {
+  const key = getCustomerKey(req);
+  const data = makeCustomerData(key);
+  return NextResponse.json(data.kyc_status);
 }
 
 

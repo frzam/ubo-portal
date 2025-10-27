@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getCustomerKey, makeCustomerData } from '../_data';
+export const dynamic = 'force-dynamic';
 
-export async function GET(_req: NextRequest) {
-  const today = new Date();
-  const rows = [...Array(12)].map((_, i) => {
-    const d = new Date(today);
-    d.setMonth(today.getMonth() - (11 - i));
-    return { date: d.toISOString().slice(0, 10), asset_value: 800000 + i * 25000 + (i % 2 ? 4000 : -3000) };
-  });
-  return NextResponse.json(rows);
+export async function GET(req: NextRequest) {
+  const key = getCustomerKey(req);
+  const data = makeCustomerData(key);
+  return NextResponse.json(data.asset_trend);
 }
 
 
